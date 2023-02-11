@@ -1,3 +1,7 @@
 venv
+.venv
+dist/
 .pytest_cache
+.pypirc
 .mypy_cache
+*.egg-info

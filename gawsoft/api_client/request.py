@@ -30,12 +30,7 @@ class Request:
         self.api_key = api_key
         self.user_agent = user_agent
 
-        self.pool = None
         self.version = __version__
-
-    def __del__(self):
-        if self.pool is not None:
-            self.pool.close()
 
     def request(self, path: str, method: str, body: Union[bytes, Dict[str, str]] = {}, query_params: Dict[str, str]={}, headers: Dict[str, str]={}) -> Response:
         '''

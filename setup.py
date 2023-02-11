@@ -1,12 +1,13 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
+from gawsoft.api_client.version import __version__
 
 with open('README.md','r') as r:
     long_description = r.read()
 
 setup(
     name='gawsoft_api_client',
-    version='1.0.0',
-    packages=find_packages(),
+    version=__version__,
+    packages=find_namespace_packages(include=['gawsoft.*']),
     namespace_packages=['gawsoft'],
     author="Gawsoft.pl",
     author_email="biuro@gawsoft.pl",
@@ -23,10 +24,5 @@ setup(
         "Source Code": "https://github.com/gawsoftpl/rest-api-client-framework-python",
     },
     licence="MIT",
-    install_requires=[
-        x.strip()
-        for x in open('requirements.txt').readlines()
-        if x and not x.startswith('#')
-    ],
     python_requires='>=3.8',
 )
