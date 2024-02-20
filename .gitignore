@@ -6,4 +6,4 @@ dist/
 .idea
 .mypy_cache
 *.egg-info
-**/__pychache__
+**__pychache__**
