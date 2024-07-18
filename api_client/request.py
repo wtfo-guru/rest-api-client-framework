@@ -1,17 +1,23 @@
-import six
-from typing import Dict, Optional, Union, Tuple
-from six.moves.urllib.parse import urlencode
+from typing import Dict, Optional, Tuple, Union
+from urllib.parse import urlencode
+
 import requests
 
-from .version import __version__
-from .exception import ApiException
-from .response import Response
+from api_client.constants import VERSION
+from api_client.exception import ApiException
+from api_client.response import Response
 
 
 class Request:
 
-    def __init__(self, api_key, api_version='v1', api_host ='http://api.example.com', user_agent='Api Python client'):
-        '''
+    def __init__(
+        self,
+        api_key,
+        api_version="v1",
+        api_host="http://api.example.com",
+        user_agent="Api Python client",
+    ):
+        """
         Create Request client object
 
         :param api_key:
@@ -21,7 +27,7 @@ class Request:
         :param api_host:
             server api host
 
-        '''
+        """
         if not api_key:
             raise Exception("No set API KEY")
 
@@ -30,10 +36,17 @@ class Request:
         self.api_key = api_key
         self.user_agent = user_agent
 
-        self.version = __version__
+        self.version = VERSION
 
-    def request(self, path: str, method: str, body: Union[bytes, Dict[str, str]] = {}, query_params: Dict[str, str]={}, headers: Dict[str, str]={}) -> Response:
-        '''
+    def request(
+        self,
+        path: str,
+        method: str,
+        body: Union[bytes, Dict[str, str]] = {},
+        query_params: Dict[str, str] = {},
+        headers: Dict[str, str] = {},
+    ) -> Response:
+        """
         Send request to REST server
 
         :param path:
@@ -46,32 +59,38 @@ class Request:
             dictionary of headers to send
         :return:
             RESTResponse object
-        '''
-        assert(isinstance(headers,dict))
-        assert(isinstance(query_params,dict))
+        """
+        assert isinstance(headers, dict)
+        assert isinstance(query_params, dict)
 
-        headers['Authorization'] = 'Bearer '+self.api_key
-        if 'Content-Type' not in headers:
-            headers['Content-Type'] = 'application/json'
-        headers['User-Agent'] = self.user_agent + ' ' + self.version
-        headers['Accept-Encoding'] = 'gzip'
+        headers["Authorization"] = "Bearer " + self.api_key
+        if "Content-Type" not in headers:
+            headers["Content-Type"] = "application/json"
+        headers["User-Agent"] = self.user_agent + " " + self.version
+        headers["Accept-Encoding"] = "gzip"
 
-        #production url
-        url = self.api_host + '/' + self.api_version  + path
+        # production url
+        url = self.api_host + "/" + self.api_version + path
 
-        return self.execute(method=method, url=url, headers=headers, body=body, query_params=query_params)
+        return self.execute(
+            method=method,
+            url=url,
+            headers=headers,
+            body=body,
+            query_params=query_params,
+        )
 
     def execute(
-            self,
-            method: str,
-            url: str,
-            query_params: Optional[Dict[str, str]]=None,
-            headers: Optional[Dict[str, str]]=None,
-            body: Optional[Union[bytes, Dict]] = None,
-            post_params=None,
-            _request_timeout: Union[Tuple[int, int ], int] = 30
+        self,
+        method: str,
+        url: str,
+        query_params: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, str]] = None,
+        body: Optional[Union[bytes, Dict]] = None,
+        post_params=None,
+        _request_timeout: Union[Tuple[int, int], int] = 30,
     ) -> Response:
-        '''
+        """
         Execute raw request to server
 
         :param method:
@@ -89,12 +108,11 @@ class Request:
         :param _request_timeout:
             Timeout in seconds
         :return: Response
-        '''
+        """
 
-        #get method
+        # get method
         method = method.upper()
-        assert method in ['GET', 'HEAD', 'DELETE', 'POST', 'PUT',
-                          'PATCH', 'OPTIONS']
+        assert method in ["GET", "HEAD", "DELETE", "POST", "PUT", "PATCH", "OPTIONS"]
 
         if post_params and body:
             raise ValueError(
@@ -104,59 +122,62 @@ class Request:
         post_params = post_params or {}
         headers = headers or {}
 
-        #timeout
+        # timeout
         timeout: Tuple[int, int] = (2, 5)
         if _request_timeout is not None:
-            if isinstance(_request_timeout, (int, ) if six.PY3 else (int)):  # noqa: E501,F821
+            if isinstance(
+                _request_timeout, (int,) if six.PY3 else (int)
+            ):  # noqa: E501,F821
                 timeout = (2, _request_timeout)
-            elif (isinstance(_request_timeout, tuple) and
-                  len(_request_timeout) == 2):
-                timeout = (_request_timeout[0],_request_timeout[1])
+            elif isinstance(_request_timeout, tuple) and len(_request_timeout) == 2:
+                timeout = (_request_timeout[0], _request_timeout[1])
 
-        #set default content type
-        if 'Content-Type' not in headers:
-            headers['Content-Type'] = 'application/json'
+        # set default content type
+        if "Content-Type" not in headers:
+            headers["Content-Type"] = "application/json"
 
-        #run request
+        # run request
         try:
             # For `POST`, `PUT`, `PATCH`, `OPTIONS`, `DELETE`
-            if method in ['POST', 'PUT', 'PATCH', 'OPTIONS', 'DELETE']:
+            if method in ["POST", "PUT", "PATCH", "OPTIONS", "DELETE"]:
 
                 if query_params:
-                    url += '?' + urlencode(query_params)
+                    url += "?" + urlencode(query_params)
 
-                if 'json' in headers['Content-Type']:
+                if "json" in headers["Content-Type"]:
                     r = requests.request(
-                        method, url,
-                        json = body,
-                        timeout=timeout,
-                        headers=headers)
-                elif headers['Content-Type'] == 'application/x-www-form-urlencoded':  # noqa: E501
+                        method, url, json=body, timeout=timeout, headers=headers
+                    )
+                elif (
+                    headers["Content-Type"] == "application/x-www-form-urlencoded"
+                ):  # noqa: E501
                     r = requests.request(
-                        method, url,
+                        method,
+                        url,
                         params=post_params,
                         timeout=timeout,
-                        headers=headers)
-                elif headers['Content-Type'] == 'multipart/form-data':
+                        headers=headers,
+                    )
+                elif headers["Content-Type"] == "multipart/form-data":
                     # must del headers['Content-Type'], or the correct
                     # Content-Type which generated by urllib3 will be
                     # overwritten.
-                    del headers['Content-Type']
+                    del headers["Content-Type"]
                     r = requests.request(
-                        method, url,
+                        method,
+                        url,
                         params=post_params,
                         timeout=timeout,
-                        headers=headers)
+                        headers=headers,
+                    )
                 # Pass a `string` parameter directly in the body to support
                 # other content types than Json when `body` argument is
                 # provided in serialized form
 
                 elif isinstance(body, bytes):
                     r = requests.request(
-                        method, url,
-                        data=body,
-                        timeout=timeout,
-                        headers=headers)
+                        method, url, data=body, timeout=timeout, headers=headers
+                    )
                 else:
                     # Cannot generate the request from given parameters
                     msg = """Cannot prepare a request message for provided
@@ -166,11 +187,7 @@ class Request:
             # For `GET`, `HEAD`
             else:
                 r = requests.request(
-                    method,
-                    url,
-                    params=query_params,
-                    timeout=timeout,
-                    headers=headers
+                    method, url, params=query_params, timeout=timeout, headers=headers
                 )
 
         except Exception as e:
@@ -180,7 +197,7 @@ class Request:
         response = Response(r)
 
         if response.status_code == 404:
-            raise ApiException('Error 404. Not found')
+            raise ApiException("Error 404. Not found")
 
         if response.status_code == 401:
             raise ApiException("Error 401. Cant authorize. Check your api token")
@@ -194,9 +211,7 @@ class Request:
         return response
 
     def info(self) -> Response:
-        ''''
+        """'
         Get info about account. Return info about free requests etc.
-        '''
-        return self.request('info', 'GET', {})
-
-
+        """
+        return self.request("info", "GET", {})
