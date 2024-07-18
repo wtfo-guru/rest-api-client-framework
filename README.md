@@ -51,11 +51,8 @@ make mypy
 
 ## Release
 ```sh
-# Release in test env
-make release-test
-
-# Real release
-make release
+bin/release.sh
 ```
+
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
