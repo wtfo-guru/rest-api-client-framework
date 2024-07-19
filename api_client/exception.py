@@ -12,7 +12,15 @@ from api_client.response import RestResponse
 
 
 class ApiException(Exception):
-    """ApiException class."""
+    """ApiException class.
+
+    :param status: status code, defaults to None
+    :type status: Optional[Union[HTTPStatus, int]], optional
+    :param reason: reason for the exception, defaults to None
+    :type reason: Optional[str], optional
+    :param response: RestResponse object, defaults to None
+    :type response: Optional[RestResponse], optional
+    """
 
     status: int
     reason: str
@@ -24,6 +32,7 @@ class ApiException(Exception):
         reason: Optional[str] = None,
         response: Optional[RestResponse] = None,
     ) -> None:
+        """Construct aa ApiException object."""
         if response:
             self.status = response.status_code
             self.reason = response.reason
@@ -38,12 +47,12 @@ class ApiException(Exception):
                 self.reason = "Unknown" if reason is None else reason
 
     def __str__(self) -> str:
-        """Custom error messages for exception"""
-        error_message = "({0})\n" "Reason: {1}\n".format(self.status, self.reason)
+        """Compose error messages for exception."""
+        error_message = "({0})\nReason: {1}\n".format(self.status, self.reason)
         if self.response:
             if self.response.headers:
                 error_message += "HTTP response headers: {0}\n".format(
-                    self.response.headers
+                    self.response.headers,
                 )
 
             body = self.response.data()

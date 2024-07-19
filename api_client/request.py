@@ -1,6 +1,13 @@
+"""
+Request module for the package api_client of rest-api-client-framework library.
+
+Classes:
+    RestRequest
+"""
+
 from http import HTTPStatus
 from typing import Any, Dict, Optional, Tuple, Union
-from urllib.parse import urlencode
+from urllib.parse import urljoin
 
 import requests
 
@@ -8,30 +15,33 @@ from api_client.constants import VERSION
 from api_client.exception import ApiException
 from api_client.response import RestResponse
 
+_CONTENT_TYPE_KEY = "Content-Type"
 Flint = Union[int, float]
 ReqTimeOut = Union[Tuple[Flint, Flint], Flint]
 
 
 class RestRequest:
+    """Class to handle rest api requests.
+
+    :param api_key: api authorization key/token
+    :type api_key: str
+    :param api_version: server api version, defaults to "v1"
+    :type api_version: str, optional
+    :param api_host: server api host, defaults to "http://api.example.com"
+    :type api_host: _type_, optional
+    :param user_agent: client user agent, defaults to "rest-api-client-framework"
+    :type user_agent: str, optional
+    :raises ValueError: if api_key is not is not set
+    """
 
     def __init__(
         self,
         api_key: str,
         api_version: str = "v1",
         api_host: str = "http://api.example.com",
-        user_agent: str = "rest-api-client-framework-{0}".format(VERSION),
+        user_agent: str = "rest-api-client-framework",
     ) -> None:
-        """
-        Create RestRequest client object
-
-        :param api_key:
-            String api key.
-        :param api_version:
-            server api version
-        :param api_host:
-            server api host
-
-        """
+        """Construct a RestRequest object."""
         if not api_key:
             raise ValueError("No set API KEY")
 
@@ -42,16 +52,16 @@ class RestRequest:
 
         self.version = VERSION
 
-    def request(
+    def request(  # noqa: WPS211, WPS234
         self,
         path: str,
         method: str,
-        body: Union[bytes, Dict[str, str]] = {},
-        query_params: Dict[str, str] = {},
-        headers: Dict[str, str] = {},
+        body: Optional[Union[bytes, Dict[str, str]]] = None,
+        query_params: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, str]] = None,
     ) -> RestResponse:
         """
-        Send request to REST server
+        Send request to REST server.
 
         :param path:
             REST path on server
@@ -64,17 +74,25 @@ class RestRequest:
         :return:
             RESTResponse object
         """
-        assert isinstance(headers, dict)
-        assert isinstance(query_params, dict)
+        if headers is None:
+            headers = {}
+        if body is None:
+            body = {}
+        if query_params is None:
+            query_params = {}
 
-        headers["Authorization"] = "Bearer " + self.api_key
-        if "Content-Type" not in headers:
-            headers["Content-Type"] = "application/json"
-        headers["User-Agent"] = self.user_agent + " " + self.version
+        headers["Authorization"] = "Bearer {0}".format(self.api_key)
+        if _CONTENT_TYPE_KEY not in headers:
+            headers[_CONTENT_TYPE_KEY] = "application/json"
+        headers["User-Agent"] = "{0} {1}".format(self.user_agent, self.version)
         headers["Accept-Encoding"] = "gzip"
 
         # production url
-        url = self.api_host + "/" + self.api_version + path
+        if self.api_version:
+            url = urljoin(self.api_host, self.api_version)
+            url = urljoin(url, path)
+        else:
+            url = urljoin(self.api_host, path)
 
         return self.execute(
             method=method,
@@ -84,7 +102,7 @@ class RestRequest:
             query_params=query_params,
         )
 
-    def execute(
+    def execute(  # noqa: WPS234, WPS231, WPS210, WPS211, C901, WPS238
         self,
         method: str,
         url: str,
@@ -95,7 +113,7 @@ class RestRequest:
         timeout: ReqTimeOut = (6.1, 20),
     ) -> RestResponse:
         """
-        Execute raw request to server
+        Execute raw request to server.
 
         :param method:
             Http method
@@ -113,51 +131,62 @@ class RestRequest:
             Timeout in seconds
         :return: RestResponse
         """
-
         # get method
         method = method.upper()
-        assert method in ["GET", "HEAD", "DELETE", "POST", "PUT", "PATCH", "OPTIONS"]
+        assert method in {  # noqa: S101
+            "GET",
+            "HEAD",
+            "DELETE",
+            "POST",
+            "PUT",
+            "PATCH",
+            "OPTIONS",
+        }
 
         if post_params and body:
             raise ValueError(
-                "body parameter cannot be used with post_params parameter."
+                "body parameter cannot be used with post_params parameter.",
             )
 
         post_params = post_params or {}
         headers = headers or {}
 
         # set default content type
-        if "Content-Type" not in headers:
-            headers["Content-Type"] = "application/json"
+        if _CONTENT_TYPE_KEY not in headers:
+            headers[_CONTENT_TYPE_KEY] = "application/json"
 
         # run request
         try:
             # For `POST`, `PUT`, `PATCH`, `OPTIONS`, `DELETE`
-            if method in ["POST", "PUT", "PATCH", "OPTIONS", "DELETE"]:
+            if method in {"POST", "PUT", "PATCH", "OPTIONS", "DELETE"}:
 
                 if query_params:
-                    url += "?" + urlencode(query_params)
+                    url = "{0}?{1}".format(url, query_params)
 
-                if "json" in headers["Content-Type"]:
-                    r = requests.request(
-                        method, url, json=body, timeout=timeout, headers=headers
+                if "json" in headers[_CONTENT_TYPE_KEY]:
+                    req = requests.request(
+                        method,
+                        url,
+                        json=body,
+                        timeout=timeout,
+                        headers=headers,
                     )
-                elif (
-                    headers["Content-Type"] == "application/x-www-form-urlencoded"
+                elif (  # noqa: WPS337
+                    headers[_CONTENT_TYPE_KEY] == "application/x-www-form-urlencoded"
                 ):  # noqa: E501
-                    r = requests.request(
+                    req = requests.request(
                         method,
                         url,
                         params=post_params,
                         timeout=timeout,
                         headers=headers,
                     )
-                elif headers["Content-Type"] == "multipart/form-data":
+                elif headers[_CONTENT_TYPE_KEY] == "multipart/form-data":
                     # must del headers['Content-Type'], or the correct
                     # Content-Type which generated by urllib3 will be
                     # overwritten.
-                    del headers["Content-Type"]
-                    r = requests.request(
+                    headers.pop(_CONTENT_TYPE_KEY)
+                    req = requests.request(
                         method,
                         url,
                         params=post_params,
@@ -169,8 +198,12 @@ class RestRequest:
                 # provided in serialized form
 
                 elif isinstance(body, bytes):
-                    r = requests.request(
-                        method, url, data=body, timeout=timeout, headers=headers
+                    req = requests.request(
+                        method,
+                        url,
+                        data=body,
+                        timeout=timeout,
+                        headers=headers,
                     )
                 else:
                     # Cannot generate the request from given parameters
@@ -180,15 +213,19 @@ class RestRequest:
                     raise ApiException(status=0, reason=msg)
             # For `GET`, `HEAD`
             else:
-                r = requests.request(
-                    method, url, params=query_params, timeout=timeout, headers=headers
+                req = requests.request(
+                    method,
+                    url,
+                    params=query_params,
+                    timeout=timeout,
+                    headers=headers,
                 )
 
-        except Exception as e:
-            msg = "{0}\n{1}".format(type(e).__name__, str(e))
+        except Exception as ex:
+            msg = "{0}\n{1}".format(type(ex).__name__, str(ex))
             raise ApiException(status=0, reason=msg)
 
-        response = RestResponse(r)
+        response = RestResponse(req)
 
         if response.status_code == HTTPStatus.NOT_FOUND:
             raise ApiException(status=HTTPStatus.NOT_FOUND)
@@ -202,13 +239,17 @@ class RestRequest:
         if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
             raise ApiException(status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
-        if not HTTPStatus.OK <= response.status_code <= HTTPStatus.BAD_REQUEST:
+        if not (  # noqa: WPS508, WPS337
+            HTTPStatus.OK << response.status_code <= HTTPStatus.BAD_REQUEST
+        ):
             raise ApiException(response=response)
 
         return response
 
-    def info(self) -> RestResponse:
-        """'
-        Get info about account. Return info about free requests etc.
+    def info(self) -> RestResponse:  # noqa: WPS110
+        """Get info about account.
+
+        :return: Info about free requests etc.
+        :rtype: RestResponse
         """
         return self.request("info", "GET", {})

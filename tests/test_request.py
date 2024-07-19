@@ -1,56 +1,69 @@
+from http import HTTPStatus
+
 import pytest
-from gawsoft.api_client import ApiException, Request
 from pytest_httpserver import HTTPServer
 
+from api_client.exception import ApiException
+from api_client.request import RestRequest
 
-def test_send_post_request(request_client: Request, httpserver: HTTPServer):
+
+def test_send_post_request(request_client: RestRequest, httpserver: HTTPServer):
     httpserver.expect_request("/v1/data", method="POST").respond_with_json(
-        {"foo": "bar"}, 201
+        {"foo": "bar"},
+        HTTPStatus.CREATED.value,
     )
 
     response = request_client.request("/data", "POST")
-    assert response.status_code == 201
+    assert response.status_code == HTTPStatus.CREATED
     assert response.data() == {"foo": "bar"}
 
 
-def test_send_post_request_error_code_429(
-    request_client: Request, httpserver: HTTPServer
+def test_send_post_request_error_code_too_many(
+    request_client: RestRequest,
+    httpserver: HTTPServer,
 ):
     httpserver.expect_request("/v1/data", method="POST").respond_with_json(
-        {"foo": "bar"}, 429
+        {"foo": "bar"},
+        HTTPStatus.TOO_MANY_REQUESTS.value,
     )
 
-    with pytest.raises(ApiException):
-        response = request_client.request("/data", "POST")
-        assert response.status_code == 429
-        assert response.data() == {"foo": "bar"}
+    with pytest.raises(ApiException):  # if it raises an exception response is not set?
+        response = request_client.request("/data", "POST")  # noqa: F841
+        # assert response.status_code == HTTPStatus.TOO_MANY_REQUESTS
+        # assert response.data() == {"foo": "bar"}
 
 
-def test_send_post_request_with_400_response(
-    request_client: Request, httpserver: HTTPServer
+def test_send_post_request_with_bad_request(
+    request_client: RestRequest,
+    httpserver: HTTPServer,
 ):
     httpserver.expect_request("/v1/data", method="POST").respond_with_json(
-        {"foo": "bar"}, 400
+        {"foo": "bar"},
+        HTTPStatus.BAD_REQUEST.value,
     )
 
     response = request_client.request("/data", "POST")
-    assert response.status_code == 400
+    assert response.status_code == HTTPStatus.BAD_REQUEST
     assert response.data() == {"foo": "bar"}
 
 
-def test_get_request_with_params(request_client: Request, httpserver: HTTPServer):
+def test_get_request_with_params(request_client: RestRequest, httpserver: HTTPServer):
     httpserver.expect_request(
-        "/v1/data", method="GET", query_string={"abc": "1", "def": "aaa"}
+        "/v1/data",
+        method="GET",
+        query_string={"abc": "1", "def": "aaa"},
     ).respond_with_json({"foo": "bar"})
 
     response = request_client.request(
-        "/data", "GET", query_params={"abc": 1, "def": "aaa"}
+        "/data",
+        "GET",
+        query_params={"abc": 1, "def": "aaa"},
     )
     assert response.data() == {"foo": "bar"}
 
 
 def test_get_request_gzipped(
-    request_client: Request,
+    request_client: RestRequest,
 ):
     response = request_client.execute(
         url="https://httpbin.org/gzip",
@@ -61,28 +74,33 @@ def test_get_request_gzipped(
     assert response.data()["gzipped"]
 
 
-def test_delete_request_with_params(request_client: Request, httpserver: HTTPServer):
+def test_delete_request_with_params(
+    request_client: RestRequest,
+    httpserver: HTTPServer,
+):
     httpserver.expect_request("/v1/data/id1", method="DELETE").respond_with_json(
-        {"foo": "bar"}
+        {"foo": "bar"},
     )
 
     response = request_client.request("/data/id1", "DELETE")
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
     assert response.data() == {"foo": "bar"}
 
 
-def test_put_request_with_params(request_client: Request, httpserver: HTTPServer):
+def test_put_request_with_params(request_client: RestRequest, httpserver: HTTPServer):
     httpserver.expect_request("/v1/data/id1", method="PUT").respond_with_json(
-        {"foo": "bar"}
+        {"foo": "bar"},
     )
 
     response = request_client.request("/data/id1", "PUT", {"abc": 123})
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
     assert response.data() == {"foo": "bar"}
 
 
 def test_post_request_with_image(
-    request_client: Request, image_bytes: bytes, httpserver: HTTPServer
+    request_client: RestRequest,
+    image_bytes: bytes,
+    httpserver: HTTPServer,
 ):
 
     httpserver.expect_request(
@@ -93,15 +111,20 @@ def test_post_request_with_image(
     ).respond_with_json({"foo": "bar"})
 
     response = request_client.request(
-        "/upload", "POST", image_bytes, headers={"Content-Type": "image/png"}
+        "/upload",
+        "POST",
+        image_bytes,
+        headers={"Content-Type": "image/png"},
     )
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
     assert response.data() == {"foo": "bar"}
 
 
-def test_get_execute_with_params(request_client: Request, httpserver: HTTPServer):
+def test_get_execute_with_params(request_client: RestRequest, httpserver: HTTPServer):
     httpserver.expect_request(
-        "/v1/data", method="GET", query_string={"abc": "1", "def": "aaa"}
+        "/v1/data",
+        method="GET",
+        query_string={"abc": "1", "def": "aaa"},
     ).respond_with_json({"foo": "bar"})
 
     response = request_client.execute(
