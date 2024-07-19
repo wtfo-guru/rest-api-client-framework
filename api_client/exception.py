@@ -5,32 +5,37 @@ Classes:
     ApiException
 """
 
-from typing import Optional
+from http import HTTPStatus
+from typing import Optional, Union
 
-from requests import Response
+from api_client.response import RestResponse
 
 
 class ApiException(Exception):
     """ApiException class."""
 
-    status: Optional[int]
-    reason: Optional[str]
-    response: Optional[Response]
+    status: int
+    reason: str
+    response: Optional[RestResponse]
 
     def __init__(
         self,
-        status: Optional[int] = None,
+        status: Optional[Union[HTTPStatus, int]] = None,
         reason: Optional[str] = None,
-        http_resp: Optional[Response] = None,
+        response: Optional[RestResponse] = None,
     ) -> None:
-
-        if http_resp:
-            self.status = http_resp.status_code
-            self.reason = http_resp.reason
+        if response:
+            self.status = response.status_code
+            self.reason = response.reason
+            self.response = response
         else:
-            self.status = status
-            self.reason = reason
-        self.response = http_resp
+            self.response = None
+            if isinstance(status, HTTPStatus):
+                self.status = status.value
+                self.reason = status.description
+            else:
+                self.status = 0 if status is None else int(status)
+                self.reason = "Unknown" if reason is None else reason
 
     def __str__(self) -> str:
         """Custom error messages for exception"""
@@ -41,8 +46,8 @@ class ApiException(Exception):
                     self.response.headers
                 )
 
-            body = self.response.text
+            body = self.response.data()
             if body:
-                error_message += "HTTP response body: {0}\n".format(body)
+                error_message += "HTTP response body: {0}\n".format(str(body))
 
         return error_message

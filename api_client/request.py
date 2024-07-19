@@ -1,24 +1,28 @@
-from typing import Dict, Optional, Tuple, Union
+from http import HTTPStatus
+from typing import Any, Dict, Optional, Tuple, Union
 from urllib.parse import urlencode
 
 import requests
 
 from api_client.constants import VERSION
 from api_client.exception import ApiException
-from api_client.response import Response
+from api_client.response import RestResponse
+
+Flint = Union[int, float]
+ReqTimeOut = Union[Tuple[Flint, Flint], Flint]
 
 
-class Request:
+class RestRequest:
 
     def __init__(
         self,
-        api_key,
-        api_version="v1",
-        api_host="http://api.example.com",
-        user_agent="Api Python client",
-    ):
+        api_key: str,
+        api_version: str = "v1",
+        api_host: str = "http://api.example.com",
+        user_agent: str = "rest-api-client-framework-{0}".format(VERSION),
+    ) -> None:
         """
-        Create Request client object
+        Create RestRequest client object
 
         :param api_key:
             String api key.
@@ -29,7 +33,7 @@ class Request:
 
         """
         if not api_key:
-            raise Exception("No set API KEY")
+            raise ValueError("No set API KEY")
 
         self.api_host = api_host
         self.api_version = api_version
@@ -45,7 +49,7 @@ class Request:
         body: Union[bytes, Dict[str, str]] = {},
         query_params: Dict[str, str] = {},
         headers: Dict[str, str] = {},
-    ) -> Response:
+    ) -> RestResponse:
         """
         Send request to REST server
 
@@ -86,10 +90,10 @@ class Request:
         url: str,
         query_params: Optional[Dict[str, str]] = None,
         headers: Optional[Dict[str, str]] = None,
-        body: Optional[Union[bytes, Dict]] = None,
-        post_params=None,
-        _request_timeout: Union[Tuple[int, int], int] = 30,
-    ) -> Response:
+        body: Optional[Union[bytes, Dict[str, Any]]] = None,
+        post_params: Optional[Dict[str, Any]] = None,
+        timeout: ReqTimeOut = (6.1, 20),
+    ) -> RestResponse:
         """
         Execute raw request to server
 
@@ -105,9 +109,9 @@ class Request:
             Raw body for post query
         :param post_params:
             When send application/x-www-form query set this attribute
-        :param _request_timeout:
+        :param request_timeout:
             Timeout in seconds
-        :return: Response
+        :return: RestResponse
         """
 
         # get method
@@ -121,16 +125,6 @@ class Request:
 
         post_params = post_params or {}
         headers = headers or {}
-
-        # timeout
-        timeout: Tuple[int, int] = (2, 5)
-        if _request_timeout is not None:
-            if isinstance(
-                _request_timeout, (int,) if six.PY3 else (int)
-            ):  # noqa: E501,F821
-                timeout = (2, _request_timeout)
-            elif isinstance(_request_timeout, tuple) and len(_request_timeout) == 2:
-                timeout = (_request_timeout[0], _request_timeout[1])
 
         # set default content type
         if "Content-Type" not in headers:
@@ -194,23 +188,26 @@ class Request:
             msg = "{0}\n{1}".format(type(e).__name__, str(e))
             raise ApiException(status=0, reason=msg)
 
-        response = Response(r)
+        response = RestResponse(r)
 
-        if response.status_code == 404:
-            raise ApiException("Error 404. Not found")
+        if response.status_code == HTTPStatus.NOT_FOUND:
+            raise ApiException(status=HTTPStatus.NOT_FOUND)
 
-        if response.status_code == 401:
-            raise ApiException("Error 401. Cant authorize. Check your api token")
+        if response.status_code == HTTPStatus.UNAUTHORIZED:
+            msg = "{0} (Check your api token)".format(
+                HTTPStatus.UNAUTHORIZED.description,
+            )
+            raise ApiException(HTTPStatus.UNAUTHORIZED.value, msg)
 
-        if response.status_code == 500:
-            raise ApiException("Internal error")
+        if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
+            raise ApiException(status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
-        if not 200 <= response.status_code <= 400:
-            raise ApiException(http_resp=response)
+        if not HTTPStatus.OK <= response.status_code <= HTTPStatus.BAD_REQUEST:
+            raise ApiException(response=response)
 
         return response
 
-    def info(self) -> Response:
+    def info(self) -> RestResponse:
         """'
         Get info about account. Return info about free requests etc.
         """

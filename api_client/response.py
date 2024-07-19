@@ -2,15 +2,17 @@ import io
 import json
 from typing import Any, Dict, Optional
 
-from .exception import ApiException
+from requests import Response
+
+from api_client.exception import ApiException
 
 
-class Response(io.IOBase):
+class RestResponse(io.IOBase):
 
     _headers: Dict[str, str]
     _status_code: int
 
-    def __init__(self, resp):
+    def __init__(self, resp: Response) -> None:
         """
         Create RestResponse object
 
@@ -121,7 +123,7 @@ class Response(io.IOBase):
             add_ext_to_path = True
 
         if not ext:
-            raise ApiException("Unknown file extension to save")
+            raise ValueError("Unknown file extension to save")
 
         save_path = path
         if add_ext_to_path:
