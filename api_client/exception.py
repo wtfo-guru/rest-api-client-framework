@@ -2,6 +2,8 @@
 Exception module for the package api_client of rest-api-client-framework library.
 
 Classes:
+    PathParamSubError
+    MissingMethodNameError
     ApiError
 """
 
@@ -9,6 +11,11 @@ from http import HTTPStatus
 from typing import Optional, Union
 
 from api_client.response import RestResponse
+
+
+_MISSING_METHOD_MSG = """
+The path parameter '{0}' was not substitute.
+"""
 
 _MISSING_METHOD_MSG = """
 Missing method name for endpoint {0}.
@@ -21,6 +28,18 @@ Pass it as an argument or declare it in the format:
 - delete_snake_case
 """
 
+class MissingArgumentError(Exception):
+    """Path parameter substitution failed."""
+
+    def __init__(self, arg: str):
+        """Construct a MissingArgumentError exception.
+
+        Parameters
+        ----------
+        path_name : str
+            The name of the path parameter not substituted.
+        """
+        self.msg = _MISSING_METHOD_MSG.format(path_name)
 class MissingMethodNameError(Exception):
     """HTTP Method is missing from endpoint."""
 

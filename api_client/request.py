@@ -81,8 +81,9 @@ class RestRequest:
         endpoint: Optional[Endpoint] = self.endpoints.get(name, None)
         if endpoint is None:
             raise EndpointNotFoundError("Endpoint '{0}' not found.".format(name))
+        en
 
-    def request(
+    def _request(
         self,
         endpoint: Endpoint,
         payload: Optional[Payload] = None,
