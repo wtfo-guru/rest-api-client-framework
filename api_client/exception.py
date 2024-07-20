@@ -2,7 +2,7 @@
 Exception module for the package api_client of rest-api-client-framework library.
 
 Classes:
-    ApiException
+    ApiError
 """
 
 from http import HTTPStatus
@@ -10,9 +10,32 @@ from typing import Optional, Union
 
 from api_client.response import RestResponse
 
+_MISSING_METHOD_MSG = """
+Missing method name for endpoint {0}.
+Pass it as an argument or declare it in the format:
 
-class ApiException(Exception):
-    """ApiException class.
+- get_your_resource_name
+- post_something
+- put_asd
+- patch_another
+- delete_snake_case
+"""
+
+class MissingMethodNameError(Exception):
+    """HTTP Method is missing from endpoint."""
+
+    def __init__(self, endpoint_name: str):
+        """Construct a MissingMethodName exception.
+
+        Parameters
+        ----------
+        endpoint_name : str
+            The name of the missing endpoint.
+        """
+        self.msg = _MISSING_METHOD_MSG.format(endpoint_name)
+
+class ApiError(Exception):
+    """ApiError class.
 
     :param status: status code, defaults to None
     :type status: Optional[Union[HTTPStatus, int]], optional
@@ -32,7 +55,7 @@ class ApiException(Exception):
         reason: Optional[str] = None,
         response: Optional[RestResponse] = None,
     ) -> None:
-        """Construct aa ApiException object."""
+        """Construct aa ApiError object."""
         if response:
             self.status = response.status_code
             self.reason = response.reason

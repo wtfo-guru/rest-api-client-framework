@@ -57,5 +57,15 @@ make release-test
 # Real release
 make release
 ```
+
 ## License
+
 [MIT](https://choosealicense.com/licenses/mit/)
+
+## Credits
+
+This project is based upon source from:
+
+[gawsoftpl/rest-api-client-framework-python](https://github.com/gawsoftpl/rest-api-client-framework-python)
+
+[paolorechia/rest-api-client](https://github.com/paolorechia/rest-api-client)

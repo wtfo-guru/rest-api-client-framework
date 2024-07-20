@@ -3,7 +3,7 @@ from http import HTTPStatus
 import pytest
 from pytest_httpserver import HTTPServer
 
-from api_client.exception import ApiException
+from api_client.exception import ApiError
 from api_client.request import RestRequest
 
 
@@ -27,7 +27,7 @@ def test_send_post_request_error_code_too_many(
         HTTPStatus.TOO_MANY_REQUESTS.value,
     )
 
-    with pytest.raises(ApiException):  # if it raises an exception response is not set?
+    with pytest.raises(ApiError):  # if it raises an exception response is not set?
         response = request_client.request("/data", "POST")  # noqa: F841
         # assert response.status_code == HTTPStatus.TOO_MANY_REQUESTS
         # assert response.data() == {"foo": "bar"}

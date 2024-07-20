@@ -13,6 +13,8 @@ packages = [
 python = "^3.9"
 urllib3 = "^2.2.2"
 requests = "^2.32.3"
+pydantic = { version = "^2.8.0", extras = [ "dotenv", "mypy" ] }
+asyncio = "^3.4.3"
 
 [tool.poetry.group.test]
 optional = true
@@ -37,6 +39,14 @@ sphinx = ">=5.2,<8.0"
 sphinx-autodoc-typehints = ">=1.24,<3.0"
 m2r2 = "^0.3"
 tomli = "^2.0"
+
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+click = "^8.1.7"
+yaml-settings-pydantic = {git = "https://github.com/acederberg/pydantic-settings-yaml.git", rev = "2.3.1"}
 
 [build-system]
 requires = ["poetry-core"]

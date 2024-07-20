@@ -10,7 +10,7 @@ TEST_MASK = tests
 
 .PHONY: update
 update:
-	poetry update --with test --with docs
+	poetry update --with test --with docs --with dev
 
 .PHONY: vars
 vars:
