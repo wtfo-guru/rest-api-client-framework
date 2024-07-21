@@ -8,8 +8,9 @@
   "python.testing.pytestEnabled": true,
   "autoDocstring.docstringFormat": "sphinx",
   "cSpell.words": [
-      "gawsoftpl",
-      "paolorechia",
-      "technitium"
+    "gawsoftpl",
+    "hdrs",
+    "paolorechia",
+    "technitium"
   ]
 }

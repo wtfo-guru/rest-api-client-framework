@@ -5,7 +5,7 @@ PACKAGE_DIR ?= api_client
 BUILD_NAME ?= $(shell echo $(PROJECT_NAME) | tr "-" "_")
 PROJECT_VERSION ?= $(shell grep ^current_version .bumpversion.cfg | awk '{print $$NF'} | tr '-' '.')
 WHEELS ?= /home/jim/kbfs/private/jim5779/wheels
-TEST_MASK = tests
+TEST_DIR = tests
 
 
 .PHONY: update
@@ -21,26 +21,26 @@ vars:
 
 .PHONY: black
 black:
-	poetry run isort $(PACKAGE_DIR) $(TEST_MASK)
-	poetry run black $(PACKAGE_DIR) $(TEST_MASK)
+	poetry run isort $(PACKAGE_DIR) $(TEST_DIR)
+	poetry run black $(PACKAGE_DIR) $(TEST_DIR)
 
 .PHONY: mypy
 mypy: black
-	# poetry run mypy $(PACKAGE_DIR) $(TEST_MASK)
+	# poetry run mypy $(PACKAGE_DIR) $(TEST_DIR)
 	poetry run mypy $(PACKAGE_DIR)
 
 .PHONY: lint
 lint: mypy
-	poetry run flake8 $(PACKAGE_DIR) $(TEST_MASK)
+	poetry run flake8 $(PACKAGE_DIR) $(TEST_DIR)
 	poetry run doc8 -q docs
 
 .PHONY: sunit
 sunit:
-	poetry run pytest -s test
+	poetry run pytest -s $(TEST_DIR)
 
 .PHONY: unit
 unit:
-	poetry run pytest test
+	poetry run pytest $(TEST_DIR)
 
 .PHONY: package
 package:

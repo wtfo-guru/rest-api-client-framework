@@ -12,12 +12,11 @@ from typing import Optional, Union
 
 from api_client.response import RestResponse
 
-
-_MISSING_METHOD_MSG = """
-The path parameter '{0}' was not substitute.
+MISSING_ARGUMENT_MSG_FMT = """
+The path parameter {0} was not substituted.
 """
 
-_MISSING_METHOD_MSG = """
+MISSING_METHOD_MSG_FMT = """
 Missing method name for endpoint {0}.
 Pass it as an argument or declare it in the format:
 
@@ -27,6 +26,7 @@ Pass it as an argument or declare it in the format:
 - patch_another
 - delete_snake_case
 """
+
 
 class MissingArgumentError(Exception):
     """Path parameter substitution failed."""
@@ -39,7 +39,9 @@ class MissingArgumentError(Exception):
         path_name : str
             The name of the path parameter not substituted.
         """
-        self.msg = _MISSING_METHOD_MSG.format(path_name)
+        self.msg = MISSING_ARGUMENT_MSG_FMT.format(arg)
+
+
 class MissingMethodNameError(Exception):
     """HTTP Method is missing from endpoint."""
 
@@ -51,7 +53,8 @@ class MissingMethodNameError(Exception):
         endpoint_name : str
             The name of the missing endpoint.
         """
-        self.msg = _MISSING_METHOD_MSG.format(endpoint_name)
+        self.msg = MISSING_METHOD_MSG_FMT.format(endpoint_name)
+
 
 class ApiError(Exception):
     """ApiError class.
