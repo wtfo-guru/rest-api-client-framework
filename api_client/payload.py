@@ -1,5 +1,5 @@
 """
-Payload module for the package api_client of rest-api-client-framework library.
+Module payload for the package api_client of rest-api-client-framework library.
 
 Classes:
     Payload
@@ -48,7 +48,7 @@ class Payload:
         elif isinstance(self._body, dict):
             return json.dumps(self._body)
         raise ValueError(
-            "Payload type {0} cannot be expressed as json.".format(type(self._body))
+            "Payload type {0} cannot be expressed as json.".format(type(self._body)),
         )
 
     def to_bytes(self) -> bytes:
@@ -61,5 +61,5 @@ class Payload:
         if isinstance(self._body, bytes):
             return self._body
         raise ValueError(
-            "Payload type {0} cannot be expressed as bytes.".format(type(self._body))
+            "Payload type {0} cannot be expressed as bytes.".format(type(self._body)),
         )

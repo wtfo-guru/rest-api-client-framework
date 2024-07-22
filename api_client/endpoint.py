@@ -107,18 +107,18 @@ class Endpoint(BaseModel):
         """
         if not self.query_parameters:
             return ""
-        parameters = []
-        for key, val in kwargs.items():
+        valors = []
+        for key, valor in kwargs.items():
             # since bool is an instance of int, we test it before int
-            if isinstance(val, bool):
-                str_val = str(val).lower()
-            elif isinstance(val, int):
-                str_val = str(val)
+            if isinstance(valor, bool):
+                str_val = str(valor).lower()
+            elif isinstance(valor, int):
+                str_val = str(valor)
             else:
-                str_val = val
+                str_val = valor
             if key in self.query_parameters:
-                parameters.append("{0}={1}".format(key, str_val))
-        return "?{0}".format("&".join(parameters))
+                valors.append("{0}={1}".format(key, str_val))
+        return "?{0}".format("&".join(valors))
 
     def _prepare_path(self, **kwargs: IntStrBool) -> str:
         """Replace path parameters with values.
@@ -131,9 +131,9 @@ class Endpoint(BaseModel):
         if path_parameters is None:
             return self.path
         path_kwargs = {}
-        for key, val in kwargs.items():
+        for key, valor in kwargs.items():
             if key in path_parameters:
-                path_kwargs[key] = val
+                path_kwargs[key] = valor
         try:
             path = self.path.format(**path_kwargs)
         except KeyError as ex:
@@ -151,10 +151,10 @@ class Endpoint(BaseModel):
         :return: List of path parameters
         :rtype: Optional[List[str]]
         """
-        params = re.findall("({[a-z_]+})", self.path)
-        if not params:
+        parameters = re.findall("({[a-z_]+})", self.path)
+        if not parameters:
             return None
         path_parameters: List[str] = []
-        for param in params:
-            path_parameters.append(re.sub("{|}", "", str(param)))
+        for parameter in parameters:
+            path_parameters.append(re.sub("{|}", "", str(parameter)))
         return path_parameters

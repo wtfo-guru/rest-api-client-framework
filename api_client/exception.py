@@ -36,7 +36,7 @@ class MissingArgumentError(Exception):
 
         Parameters
         ----------
-        path_name : str
+        arg : str
             The name of the path parameter not substituted.
         """
         self.msg = MISSING_ARGUMENT_MSG_FMT.format(arg)

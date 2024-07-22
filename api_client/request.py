@@ -7,11 +7,9 @@ Classes:
     RestRequest
 """
 
-from asyncio import to_thread
 from enum import Enum
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional, Tuple, Union
-from urllib.parse import urljoin
+from typing import Any, Dict, List, Optional, Union
 
 import requests
 
@@ -21,6 +19,9 @@ from api_client.exception import ApiError
 from api_client.payload import IntStrBool, Payload
 from api_client.response import RestResponse
 
+# from urllib.parse import urljoin
+
+
 _CONTENT_TYPE_KEY = "Content-Type"
 Headers = Dict[str, str]
 
@@ -28,15 +29,15 @@ Headers = Dict[str, str]
 class ExecutionMode(Enum):
     """ExecutionMode class."""
 
-    SYNC = "SYNC"
-    ASYNC = "ASYNC"
+    SYNC = "SYNC"  # noqa: WPS115
+    ASYNC = "ASYNC"  # noqa: WPS115
 
 
 class EndpointNotFoundError(Exception):
     """Endpoint not found in RestRequest class."""
 
 
-class RestRequest:
+class RestRequest:  # noqa: WPS214
     """Class to handle rest api requests.
 
     :param endpoint: Endpoint or list of Endpoints for the request object
@@ -47,10 +48,9 @@ class RestRequest:
     :type user_agent: Optional[str]
     :param api_key: api authorization
     :type api_key: Optional[str], default to None
-    :raises KeyError: When duplicate endpoints names are encountered
     """
 
-    endpoints: Dict[str, Endpoint]
+    _endpoints: Dict[str, Endpoint]
 
     def __init__(
         self,
@@ -60,14 +60,11 @@ class RestRequest:
         api_key: Optional[str] = None,
     ) -> None:
         """Construct a RestRequest object."""
-        self.endpoints = {}
-        if isinstance[endpoints, list]:
-            for ep in endpoints:
-                if ep.name in self.endpoints:
-                    raise KeyError("Endpoint name {0} already exists.".format(ep.name))
-                self.endpoints[ep.name] = ep
+        self._endpoints = {}
+        if isinstance(endpoints, Endpoint):
+            self._register_endpoint(endpoints)
         else:
-            self.endpoints[endpoints.name] = endpoints
+            self._register_endpoints(endpoints)
         self.api_root = api_root
         self.user_agent = user_agent
         self.api_key = api_key
@@ -82,26 +79,56 @@ class RestRequest:
         mode: ExecutionMode = ExecutionMode.SYNC,
         **kwargs: IntStrBool,
     ) -> RestResponse:
-        endpoint: Optional[Endpoint] = self.endpoints.get(name, None)
+        """Call endpoint.
+
+        :param name: Endpoint name
+        :type name: str
+        :param payload: Payload to send, defaults to None
+        :type payload: Optional[Payload], optional
+        :param headers: Headers to send, defaults to None
+        :type headers: Optional[Headers], optional
+        :param mode: Sync or async, defaults to ExecutionMode.SYNC
+        :type mode: ExecutionMode, optional
+        :raises EndpointNotFoundError: If endpoint not found
+        :raises NotImplementedError: If mode is async
+        :return: The RestResponse object
+        :rtype: RestResponse
+        """
+        endpoint: Optional[Endpoint] = self._endpoints.get(name, None)
         if endpoint is None:
             raise EndpointNotFoundError("Endpoint '{0}' not found.".format(name))
         url, method = endpoint.prepare(self.api_root, **kwargs)
-        heads = self._prepare_headers(headers)
-        self._send_request(url, method, heads, mode, endpoint.timeout, payload)
-        # return self.execute(
-        #     method=method,
-        #     url=url,
-        #     headers=headers,
-        #     body=body,
-        #     query_params=query_params,
-        # )
 
-    async def _send_request(
+        heads = self._prepare_headers(headers)
+        if mode == ExecutionMode.SYNC:
+            return self._send_request(url, method, heads, endpoint.timeout, payload)
+        raise NotImplementedError("Async request is not implemented yet!")
+
+    def _register_endpoints(self, endpoints: List[Endpoint]) -> None:
+        """Register Endpoints.
+
+        :param endpoints: Endpoints to register
+        :type endpoints: List[Endpoint]
+        """
+        for ep in endpoints:
+            self._register_endpoint(ep)
+
+    def _register_endpoint(self, endpoint: Endpoint) -> None:
+        """Register Endpoint.
+
+        :param endpoint: Endpoint to register
+        :type endpoint: Endpoint
+        :raises KeyError: If endpoint is already registered
+        """
+        if endpoint.name in self._endpoints:
+            raise KeyError("Endpoint name {0} already exists.".format(endpoint.name))
+        self._endpoints[endpoint.name] = endpoint
+
+    def _send_request(
         self,
         url: str,
         method: HTTPMethod,
         headers: Headers,
-        mode: ExecutionMode,
         timeout: ReqTimeOut,
         payload: Optional[Payload] = None,
         **kwargs: Any,
@@ -112,30 +139,23 @@ class RestRequest:
         :type method: str
         :param url: The url to send the request
         :type url: str
-        :param mode: Mode sync or async
-        :type mode: ExecutionMode
         :return: The request response
         :rtype: RestResponse
         """
-        if mode == ExecutionMode.ASYNC:
-            return await to_thread(
-                self._execute(method, url, timeout, headers, payload, **kwargs)
-            )
         return self._execute(method, url, timeout, headers, payload, **kwargs)
 
-    def _execute(
+    def _execute(  # noqa: C901, WPS238, WPS231
         self,
         method: HTTPMethod,
         url: str,
         timeout: ReqTimeOut,
         headers: Optional[Dict[str, str]] = None,
         payload: Optional[Payload] = None,
-        # query_params: Optional[Dict[str, str]] = None,
-        # post_params: Optional[Dict[str, Any]] = None,
     ) -> RestResponse:
-
-        post_params = post_params or {}
-        headers = headers or {}
+        if payload is None:
+            payload = Payload({})
+        if headers is None:
+            headers = {}
 
         # set default content type
         if _CONTENT_TYPE_KEY not in headers:
@@ -151,13 +171,6 @@ class RestRequest:
                     headers=headers,
                 )
             else:
-                if payload is None:
-                    raise ValueError(
-                        "payload parameter is required for request method: {0}".format(
-                            method.name
-                        )
-                    )
-
                 if "json" in headers[_CONTENT_TYPE_KEY]:
                     req = requests.request(
                         method.name,
@@ -215,18 +228,18 @@ class RestRequest:
     #     return self.request("info", "GET", {})
 
     @classmethod
-    def _add_key_if_missing(cls, map: Headers, key: str, val: str) -> None:
+    def _add_key_if_missing(cls, headers: Headers, key: str, header: str) -> None:
         """Add the value to the map if it doesn't already exist.
 
-        :param map: Request headers
-        :type map: Headers
+        :param headers: Request headers
+        :type headers: Headers
         :param key: Header key
         :type key: str
-        :param val: Header value
-        :type val: str
+        :param header: Header value
+        :type header: str
         """
-        if key not in map:
-            map[key] = val
+        if key not in headers:
+            headers[key] = header
 
     def _prepare_headers(self, headers: Optional[Headers] = None) -> Headers:
         """Prepare headers.
@@ -242,11 +255,15 @@ class RestRequest:
             heads = headers.copy()
         if self.api_key:
             self._add_key_if_missing(
-                heads, "Authorization", "Bearer {0}".format(self.api_key)
+                heads,
+                "Authorization",
+                "Bearer {0}".format(self.api_key),
             )
         self._add_key_if_missing(heads, _CONTENT_TYPE_KEY, "application/json")
         self._add_key_if_missing(
-            heads, "User-Agent", "{0} {1}".format(self.user_agent, self.version)
+            heads,
+            "User-Agent",
+            "{0} {1}".format(self.user_agent, self.version),
         )
         self._add_key_if_missing(heads, "Accept-Encoding", "gzip")
         return heads
