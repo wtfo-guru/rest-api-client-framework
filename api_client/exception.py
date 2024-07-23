@@ -4,7 +4,7 @@ Exception module for the package api_client of rest-api-client-framework library
 Classes:
     PathParamSubError
     MissingMethodNameError
-    ApiError
+    ApiClientError
 """
 
 from http import HTTPStatus
@@ -56,8 +56,8 @@ class MissingMethodNameError(Exception):
         self.msg = MISSING_METHOD_MSG_FMT.format(endpoint_name)
 
 
-class ApiError(Exception):
-    """ApiError class.
+class ApiClientError(Exception):
+    """ApiClientError class.
 
     :param status: status code, defaults to None
     :type status: Optional[Union[HTTPStatus, int]], optional
@@ -77,10 +77,10 @@ class ApiError(Exception):
         reason: Optional[str] = None,
         response: Optional[RestResponse] = None,
     ) -> None:
-        """Construct aa ApiError object."""
+        """Construct an ApiClientError object."""
         if response:
             self.status = response.status_code
-            self.reason = response.reason
+            self.reason = self._reason(HTTPStatus(self.status))
             self.response = response
         else:
             self.response = None
@@ -105,3 +105,15 @@ class ApiError(Exception):
                 error_message += "HTTP response body: {0}\n".format(str(body))
 
         return error_message
+
+    def _reason(self, status: HTTPStatus) -> str:
+        """Return reason based on the status.
+
+        :param status: The HTTP status code
+        :type status: HTTPStatus
+        :return: Reason based on the status
+        :rtype: str
+        """
+        if status == HTTPStatus.UNAUTHORIZED:
+            return "{0} (Check your api token)".format(status.description)
+        return status.description

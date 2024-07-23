@@ -13,21 +13,32 @@ Classes:
 import re
 from enum import Enum
 from types import MappingProxyType
-from typing import Dict, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
+from urllib.parse import urljoin
 
 from pydantic import BaseModel
 
+from api_client import logger
 from api_client.exception import MissingArgumentError, MissingMethodNameError
 from api_client.payload import IntStrBool
-
-# from urllib.parse import quote, quote_plus
-
 
 SUPPORTED_REQUEST_METHODS = frozenset(("get", "post", "put", "patch", "delete"))
 REQUEST_METHOD_ALIASES = MappingProxyType({"create": "post", "update": "put"})
 
 Flint = Union[int, float]
 ReqTimeOut = Union[Tuple[Flint, Flint], Flint]
+
+
+def multi_urljoin(*parts: str) -> str:
+    """Assemble a url from parts.
+
+    :return: The assembled URL string
+    :rtype: str
+    """
+    return urljoin(  # noqa: WPS221
+        parts[0],
+        "/".join(part.strip("/") for part in parts[1:]),
+    )
 
 
 class HTTPMethod(Enum):
@@ -51,7 +62,7 @@ class Endpoint(BaseModel):
     :vartype name: str
     :ivar path: This is is the url relative path
     :vartype path: str
-    :ivar method: This is method type, defaults to None
+    :ivar request_method: This is request_method type, defaults to None
     :vartype name: HTTPMethod, optional
     :ivar model: This is a pydantic BaseModel to be used for request response
     :vartype name: BaseModel
@@ -61,43 +72,46 @@ class Endpoint(BaseModel):
 
     name: str
     path: str
-    method: Optional[HTTPMethod] = None
+    request_method: Optional[HTTPMethod] = None
     model: Optional[type] = None
     query_parameters: Optional[List[str]] = None
     timeout: ReqTimeOut = (6.1, 20)
 
     def prepare(self, url_root: str, **kwargs: IntStrBool) -> Tuple[str, HTTPMethod]:
-        """_summary_
+        """Prepare the endpoint url.
 
         :param url_root: The api endpoint root path
         :type url_root: str
         :return: Prepared URL, Request method
         :rtype: Tuple[str, str]
         """
-        if self.method is None:
-            self.method = self._method_from_name()
+        if self.request_method is None:
+            self.request_method = self._method_from_name()  # noqa: WPS601
         # TODO: Research and implement urllib.parse.quote/quote_plus
         query = self._prepare_query(**kwargs)
         path = self._prepare_path(**kwargs)
-        url = "{0}/{1}{2}".format(url_root.rstrip("/"), path.strip("/"), query)
-        return url, self.method
+        # url = "{0}/{1}{2}".format(url_root.rstrip("/"), path.strip("/"), query)
+        url = multi_urljoin(url_root, path, query)
+        logger.debug("url: {0}".format(url))
+        return url, self.request_method
 
     def _method_from_name(self) -> HTTPMethod:
-        """Extract method type from the instance name.
+        """Extract request_method type from the instance name.
 
-        :raises MissingMethodNameError: If method type cannot be extracted from name.
-        :return: The extracted method type.
+        :raises MissingMethodNameError: If request_method type cannot be extracted
+            from name.
+        :return: The extracted request_method type.
         :rtype: HTTPMethod
         """
         sections = self.name.split("_")
-        method = sections[0]
-        # get aliased method if exists
-        method = REQUEST_METHOD_ALIASES.get(method, method)
-        if method not in SUPPORTED_REQUEST_METHODS:
+        request_method = sections[0]
+        # get aliased request_method if exists
+        request_method = REQUEST_METHOD_ALIASES.get(request_method, request_method)
+        if request_method not in SUPPORTED_REQUEST_METHODS:
             raise MissingMethodNameError(endpoint_name=self.name)
 
         # Inferred type from endpoint name.
-        return HTTPMethod(method)
+        return HTTPMethod(request_method)
 
     def _prepare_query(self, **kwargs: IntStrBool) -> str:
         """Prepare the query from the kwargs.
@@ -151,10 +165,10 @@ class Endpoint(BaseModel):
         :return: List of path parameters
         :rtype: Optional[List[str]]
         """
-        parameters = re.findall("({[a-z_]+})", self.path)
-        if not parameters:
+        variables = re.findall("({[a-z_]+})", self.path)
+        if not variables:
             return None
         path_parameters: List[str] = []
-        for parameter in parameters:
+        for parameter in variables:
             path_parameters.append(re.sub("{|}", "", str(parameter)))
         return path_parameters

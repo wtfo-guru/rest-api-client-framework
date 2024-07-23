@@ -15,7 +15,7 @@ import requests
 
 from api_client.constants import VERSION
 from api_client.endpoint import Endpoint, HTTPMethod, ReqTimeOut
-from api_client.exception import ApiError
+from api_client.exception import ApiClientError
 from api_client.payload import IntStrBool, Payload
 from api_client.response import RestResponse
 
@@ -149,17 +149,11 @@ class RestRequest:  # noqa: WPS214
         method: HTTPMethod,
         url: str,
         timeout: ReqTimeOut,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Dict[str, str],
         payload: Optional[Payload] = None,
     ) -> RestResponse:
         if payload is None:
             payload = Payload({})
-        if headers is None:
-            headers = {}
-
-        # set default content type
-        if _CONTENT_TYPE_KEY not in headers:
-            headers[_CONTENT_TYPE_KEY] = "application/json"
 
         # run request
         try:
@@ -192,30 +186,15 @@ class RestRequest:  # noqa: WPS214
                     msg = """Cannot prepare a request message for provided
                              arguments. Please check that your arguments match
                              declared content type."""
-                    raise ApiError(status=0, reason=msg)
+                    raise ApiClientError(status=0, reason=msg)
 
         except Exception as ex:
             msg = "{0}\n{1}".format(type(ex).__name__, str(ex))
-            raise ApiError(status=0, reason=msg)
+            raise ApiClientError(status=0, reason=msg)
 
         response = RestResponse(req)
 
-        if response.status_code == HTTPStatus.NOT_FOUND:
-            raise ApiError(status=HTTPStatus.NOT_FOUND)
-
-        if response.status_code == HTTPStatus.UNAUTHORIZED:
-            msg = "{0} (Check your api token)".format(
-                HTTPStatus.UNAUTHORIZED.description,
-            )
-            raise ApiError(HTTPStatus.UNAUTHORIZED.value, msg)
-
-        if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-            raise ApiError(status=HTTPStatus.INTERNAL_SERVER_ERROR)
-
-        if not (  # noqa: WPS508, WPS337
-            HTTPStatus.OK << response.status_code <= HTTPStatus.BAD_REQUEST
-        ):
-            raise ApiError(response=response)
+        self._check_response(response)
 
         return response
 
@@ -226,6 +205,17 @@ class RestRequest:  # noqa: WPS214
     #     :rtype: RestResponse
     #     """
     #     return self.request("info", "GET", {})
+
+    def _check_response(self, response: RestResponse) -> None:
+        """Check the response status code.
+
+        :param response: _description_
+        :type response: _type_
+        :raises ApiClientError: _description_
+        """
+        if HTTPStatus.OK <= response.status_code < HTTPStatus.BAD_REQUEST:
+            return
+        raise ApiClientError(response=response)
 
     @classmethod
     def _add_key_if_missing(cls, headers: Headers, key: str, header: str) -> None:

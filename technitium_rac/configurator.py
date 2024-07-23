@@ -1,19 +1,19 @@
 """Top-level module configurator for wtfimap package."""
 
 import os
+import re
 import sys
 from pathlib import Path
+from typing import Tuple
 from urllib.parse import urljoin
 
 import click
 from pydantic import EmailStr, HttpUrl, SecretStr
-from typing import Tuple
 from yaml_settings_pydantic import (
     BaseYamlSettings,
     YamlFileConfigDict,
     YamlSettingsConfigDict,
 )
-
 
 _TEST = "test"
 _PROJECT = "technitium_rac"
@@ -23,14 +23,13 @@ if _TECHNITIUM_RAC_ENV == _TEST and os.getenv("GL_PIPELINE_FLAG", "NO") == "YES"
 else:
     _SETTINGS_FILE = Path().home() / ".config" / "{0}.yaml".format(_PROJECT)
 
-
 class Common(BaseYamlSettings):
     """Common configuration parameters."""
 
     # __env_yaml_files__ = str(Path().home() / ".config" / "{0}.yaml".format(PROJECT))
     # __env_yaml_files__ = "/home/jim/.config/wtfimap.yaml"
 
-    options: dict[str, bool]
+    options: dict[str, int | str | bool]
     pri_root: HttpUrl
     pri_token: SecretStr
     sec_root: HttpUrl
@@ -58,7 +57,7 @@ class Common(BaseYamlSettings):
         for kk, vv in kwargs.items():
             self.options[kk] = vv
 
-    def server_info(self, name: str) -> Tuple[HttpUrl, SecretStr]:
+    def server_info(self, name: str) -> Tuple[str, str]:
         """Return the server information.
 
         :param name: Server identifier one of pri or sec
@@ -66,9 +65,9 @@ class Common(BaseYamlSettings):
         :return: The Api root and token for the server
         :rtype: Tuple[HttpUrl, SecretStr]
         """
-        if name.match("pri"):
-            return (self.pri_root.full_string, self.pri_token)
-        return (self.sec_root, self.sec_token)
+        if re.match("pri", name, re.IGNORECASE):
+            return (str(self.pri_root), self.pri_token.get_secret_value())
+        return (str(self.sec_root), self.sec_token.get_secret_value())
 
 
 class Dev(Common):
@@ -102,7 +101,7 @@ _setup = {"dev": Dev, _TEST: Test, "prod": Prod}
 # Validate and instantiate specified environment configuration.
 try:
     app_config: Dev | Test | Prod
-    app_config = _setup[_WTFIMAP_ENV]()  # type: ignore[assignment, call-arg]
+    app_config = _setup[_TECHNITIUM_RAC_ENV]()  # type: ignore[assignment, call-arg]
     # app_config = Test()
 except ValueError as ex:
     click.echo(str(ex))
