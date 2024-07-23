@@ -1,9 +1,12 @@
 import base64
+import os
 from http import HTTPStatus
+from typing import List
 
 import pytest
 from requests import Response
 
+from api_client.endpoint import Endpoint
 from api_client.request import RestRequest
 
 EXAMPLE_IMAGE = (
@@ -80,6 +83,8 @@ EXAMPLE_IMAGE = (
     "RRcGO6WxvLwygTKc+ekZHGQCCY+x64rxiN2ilWQdBww9QetehDWGvoTfW6P/2Q=="
 )
 
+os.environ["REST_API_CLIENT_FRAMEWORK_TESTING"] = "Yes"
+
 
 @pytest.fixture
 def image_bytes() -> bytes:
@@ -93,7 +98,9 @@ def httpserver_listen_address():
 
 @pytest.fixture
 def request_client() -> RestRequest:
-    return RestRequest("abc", "v1", "http://127.0.0.1:5050")
+    endpoints: List[Endpoint] = []
+    endpoints.append(Endpoint(name="post_v1_data", path="/v1/data"))
+    return RestRequest("http://127.0.0.1:5050", endpoints, "abc")
 
 
 @pytest.fixture

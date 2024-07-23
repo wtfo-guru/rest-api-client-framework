@@ -99,7 +99,9 @@ class RestRequest:  # noqa: WPS214
             raise EndpointNotFoundError("Endpoint '{0}' not found.".format(name))
         url, method = endpoint.prepare(self.api_root, **kwargs)
 
-        heads = self._prepare_headers(headers)
+        if payload is None:
+            payload = Payload()
+        heads = self._prepare_headers(payload, headers)
         if mode == ExecutionMode.SYNC:
             return self._send_request(url, method, heads, endpoint.timeout, payload)
         raise NotImplementedError("Async request is not implemented yet!")
@@ -150,7 +152,7 @@ class RestRequest:  # noqa: WPS214
         url: str,
         timeout: ReqTimeOut,
         headers: Dict[str, str],
-        payload: Optional[Payload] = None,
+        payload: Payload,
     ) -> RestResponse:
         if payload is None:
             payload = Payload({})
@@ -170,6 +172,14 @@ class RestRequest:  # noqa: WPS214
                         method.name,
                         url,
                         json=payload.to_json(),
+                        timeout=timeout,
+                        headers=headers,
+                    )
+                elif payload.is_text:
+                    req = requests.request(
+                        method.name,
+                        url,
+                        data=payload.to_text(),
                         timeout=timeout,
                         headers=headers,
                     )
@@ -231,9 +241,11 @@ class RestRequest:  # noqa: WPS214
         if key not in headers:
             headers[key] = header
 
-    def _prepare_headers(self, headers: Optional[Headers] = None) -> Headers:
+    def _prepare_headers(self, payload: Payload, headers: Optional[Headers] = None) -> Headers:
         """Prepare headers.
 
+        :param payload: The Payload object
+        :type payload: Payload
         :param headers: Request headers, defaults to None
         :type headers: Optional[Headers], optional
         :return: Prepared request headers
@@ -249,7 +261,7 @@ class RestRequest:  # noqa: WPS214
                 "Authorization",
                 "Bearer {0}".format(self.api_key),
             )
-        self._add_key_if_missing(heads, _CONTENT_TYPE_KEY, "application/json")
+        self._add_key_if_missing(heads, _CONTENT_TYPE_KEY, payload.content_type)
         self._add_key_if_missing(
             heads,
             "User-Agent",

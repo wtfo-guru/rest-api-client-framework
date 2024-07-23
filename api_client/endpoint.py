@@ -35,10 +35,15 @@ def multi_urljoin(*parts: str) -> str:
     :return: The assembled URL string
     :rtype: str
     """
-    return urljoin(  # noqa: WPS221
-        parts[0],
-        "/".join(part.strip("/") for part in parts[1:]),
-    )
+    print(parts)
+    url = parts[0].strip("/")
+    for part in parts[1:]:
+        if part:
+            if part.startswith("?"):
+                url = "{0}{1}".format(url, part.strip("/"))
+            else:
+                url = "{0}/{1}".format(url, part.strip("/"))
+    return url
 
 
 class HTTPMethod(Enum):

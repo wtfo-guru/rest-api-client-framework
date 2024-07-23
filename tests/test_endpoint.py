@@ -27,10 +27,10 @@ def test_endpoint_query_path_parameters():
     enable_blocking = Endpoint(
         name="enable_blocking",
         path="/settings/{action}",
-        method=HTTPMethod.GET,
+        request_method=HTTPMethod.GET,
         query_parameters=qps,
     )
-    url_root = "http://example.com/api/v3"
+    url_root = "http://example.com/api/v3/"
     action = "set"
     url, method = enable_blocking.prepare(
         url_root,
@@ -39,7 +39,7 @@ def test_endpoint_query_path_parameters():
         enableBlocking=True,
     )
     assert method == HTTPMethod.GET
-    assert url == "{0}/settings/{1}?{2}={3}&{4}=true".format(
+    assert url == "{0}settings/{1}?{2}={3}&{4}=true".format(
         url_root,
         action,
         qps[0],
@@ -75,7 +75,7 @@ def test_missing_argument_exception():
     enable_blocking = Endpoint(
         name=name,
         path="/settings/{action}",
-        method=HTTPMethod.GET,
+        request_method=HTTPMethod.GET,
         query_parameters=qps,
     )
     url_root = "https://example.com/api/v3"
