@@ -7,7 +7,6 @@ Classes:
     RestRequest
 """
 
-import re
 from enum import Enum
 from http import HTTPStatus
 from typing import Any, Dict, List, Optional, Union
@@ -26,7 +25,7 @@ from api_client.response import RestResponse
 
 _CONTENT_TYPE_KEY = "Content-Type"
 
-Headers = CaseInsensitiveDict[str, str]
+Headers = CaseInsensitiveDict[str]
 
 
 class ExecutionMode(Enum):
@@ -154,8 +153,8 @@ class RestRequest:  # noqa: WPS214
         method: HTTPMethod,
         url: str,
         timeout: ReqTimeOut,
-        headers: Dict[str, str],
-        payload: Payload,
+        headers: Headers,
+        payload: Optional[Payload],
     ) -> RestResponse:
         if payload is None:
             payload = Payload({})
@@ -231,7 +230,12 @@ class RestRequest:  # noqa: WPS214
         raise ApiClientError(response=response)
 
     @classmethod
-    def _add_key_if_missing(cls, headers: Headers, key: str, header: str) -> None:
+    def _add_key_if_missing(
+        cls,
+        headers: Headers,
+        key: str,
+        header: Optional[str],
+    ) -> None:
         """Add the value to the map if it doesn't already exist.
 
         :param headers: Request headers
@@ -242,14 +246,16 @@ class RestRequest:  # noqa: WPS214
         :type header: str
         """
         if key not in headers:
-            if re.match(_CONTENT_TYPE_KEY, key, re.IGNORECASE) and header == "None":
+            if header is None:
                 raise ValueError(
-                    "header '{0}' cannot be 'None'.".format(_CONTENT_TYPE_KEY),
+                    "header '{0}' cannot be None.".format(key),
                 )
             headers[key] = header
 
     def _prepare_headers(
-        self, payload: Payload, headers: Optional[Headers] = None
+        self,
+        payload: Payload,
+        headers: Optional[Headers] = None,
     ) -> Headers:
         """Prepare headers.
 
@@ -260,8 +266,10 @@ class RestRequest:  # noqa: WPS214
         :return: Prepared request headers
         :rtype: Headers
         """
+        heads: Headers
         if headers is None:
-            heads = {}
+            initial_headers: Dict[str, str] = {}
+            heads = Headers(initial_headers)
         else:
             heads = headers.copy()
         if self.api_key:

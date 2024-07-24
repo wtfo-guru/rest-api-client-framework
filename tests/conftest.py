@@ -1,3 +1,15 @@
+"""
+Module conftest module for package tests of rest-api-client-framework library.
+
+Functions:
+    foo_bar
+    image_bytes
+    httpserver_listen_address
+    request_client
+    response
+    response_image
+"""
+
 import os
 
 os.environ["REST_API_CLIENT_FRAMEWORK_TESTING"] = "Yes"
@@ -90,25 +102,33 @@ EXAMPLE_IMAGE = (
 
 @pytest.fixture
 def foo_bar() -> Dict[str, str]:
+    """Fixture foo_bar."""
     return {"foo": "bar"}
 
 
 @pytest.fixture
 def image_bytes() -> bytes:
+    """Fixture image_bytes."""
     return base64.b64decode(EXAMPLE_IMAGE)
 
 
 @pytest.fixture(scope="session")
 def httpserver_listen_address():
+    """Fixture httpserver_listen_address."""
     return ("127.0.0.1", 5050)
 
 
 @pytest.fixture
 def request_client() -> RestRequest:
+    """Fixture request_client."""
     endpoints: List[Endpoint] = []
     endpoints.append(Endpoint(name="post_v1_data", path="/v1/data"))
     endpoints.append(
-        Endpoint(name="get_v1_data", path="/v1/data", query_parameters=["abcd", "efgh"])
+        Endpoint(
+            name="get_v1_data",
+            path="/v1/data",
+            query_parameters=["abcd", "efgh"],
+        ),
     )
     endpoints.append(Endpoint(name="delete_v1_data", path="/v1/data/{id}"))
     endpoints.append(Endpoint(name="put_v1_data", path="/v1/data/{id}"))
@@ -117,13 +137,14 @@ def request_client() -> RestRequest:
             name="wtf_upload",
             path="/{version}/upload",
             request_method=HTTPMethod.POST,
-        )
+        ),
     )
     return RestRequest("http://127.0.0.1:5050", endpoints, "abc")
 
 
 @pytest.fixture
 def response() -> Response:
+    """Fixture response."""
     rr = Response()
     rr._content = '{"foo": "bar"}'.encode("utf-8")  # noqa: WPS437
     rr.status_code = HTTPStatus.OK
@@ -134,6 +155,7 @@ def response() -> Response:
 
 @pytest.fixture
 def response_image() -> Response:
+    """Fixture response_image."""
     rr = Response()
     rr._content = base64.b64decode(EXAMPLE_IMAGE)  # noqa: WPS437
     rr.status_code = HTTPStatus.OK

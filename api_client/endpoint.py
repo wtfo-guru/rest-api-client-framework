@@ -14,7 +14,6 @@ import re
 from enum import Enum
 from types import MappingProxyType
 from typing import List, Optional, Tuple, Union
-from urllib.parse import urljoin
 
 from pydantic import BaseModel
 
@@ -35,7 +34,6 @@ def multi_urljoin(*parts: str) -> str:
     :return: The assembled URL string
     :rtype: str
     """
-    print(parts)
     url = parts[0].strip("/")
     for part in parts[1:]:
         if part:

@@ -31,11 +31,16 @@ class Payload:
 
     @property
     def content_type(self) -> Optional[str]:
+        """Return the content type of the payload.
+
+        :return: Content type of the payload
+        :rtype: Optional[str]
+        """
         if self._content_type is not None:
             return self._content_type
         if self._body is None:
             return "application/json"
-        if isinstance(self._body, BaseModel) or isinstance(self._body, dict):
+        if isinstance(self._body, (BaseModel, dict)):
             return "application/json"
         if isinstance(self._body, str):
             return "text/plain"
@@ -80,7 +85,8 @@ class Payload:
                     type(self._body),
                 ),
             )
-        return "{}"
+        # return "{}"
+        return ""
 
     def to_bytes(self) -> Optional[bytes]:
         """Return payload as bytes.
@@ -94,7 +100,7 @@ class Payload:
                 return self._body
             raise ValueError(
                 "Payload type {0} cannot be expressed as bytes.".format(
-                    type(self._body)
+                    type(self._body),
                 ),
             )
         return None
@@ -111,7 +117,7 @@ class Payload:
                 return self._body
             raise ValueError(
                 "Payload type {0} cannot be expressed as text.".format(
-                    type(self._body)
+                    type(self._body),
                 ),
             )
         return None

@@ -1,3 +1,13 @@
+"""
+Module test_response module for package tests of rest-api-client-framework library.
+
+Functions:
+    assert_file_hash
+    test_parse_response
+    test_save_json_in_file
+    test_image_as_response
+"""
+
 import hashlib
 from http import HTTPStatus
 
@@ -8,6 +18,7 @@ from api_client.response import RestResponse
 
 
 def assert_file_hash(file_path: str, match: str):
+    """Assert file hash."""
     with open(file_path, "rb") as fp:
         image = fp.read()
 
@@ -19,6 +30,7 @@ def assert_file_hash(file_path: str, match: str):
 
 
 def test_parse_response(response: Response):
+    """Test parse response."""
     resp = RestResponse(response)
     assert resp.status_code == HTTPStatus.OK
     assert resp.headers == {
@@ -30,6 +42,7 @@ def test_parse_response(response: Response):
 
 
 def test_save_json_in_file(response: Response, fs: FakeFilesystem):
+    """Test save json in file."""
     fs.create_dir("/testing")
     resp = RestResponse(response)
     assert resp.is_json()
@@ -37,12 +50,14 @@ def test_save_json_in_file(response: Response, fs: FakeFilesystem):
     assert_file_hash("/testing/test.json", "94232c5b8fc9272f6f73a1e36eb68fcf")
 
 
-def test_image_as_response(response_image: Response):
+def test_image_as_response(response_image: Response, fs: FakeFilesystem):
+    """Test image as response."""
+    fs.create_dir("/testing")
     resp = RestResponse(response_image)
     assert resp.status_code == HTTPStatus.OK
     assert resp.headers == {
         "content-type": "image/png",
     }
     assert resp.is_json() is False
-    assert resp.save("/tmp/image.png") == "/tmp/image.png"
-    assert_file_hash("/tmp/image.png", "d16fbdccd830021d48d0a7498b0c4456")
+    assert resp.save("/testing/image.png") == "/testing/image.png"
+    assert_file_hash("/testing/image.png", "d16fbdccd830021d48d0a7498b0c4456")
