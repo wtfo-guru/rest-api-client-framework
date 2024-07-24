@@ -24,7 +24,7 @@ class Payload:
     _body: Optional[Body]
     _content_type: Optional[str]
 
-    def __init__(self, body: Body = None, content_type: str = None):
+    def __init__(self, body: Optional[Body] = None, content_type: Optional[str] = None):
         """Construct payload object."""
         self._body = body
         self._content_type = content_type
@@ -39,6 +39,7 @@ class Payload:
             return "application/json"
         if isinstance(self._body, str):
             return "text/plain"
+        return None
 
     @property
     def is_bytes(self) -> bool:
@@ -62,7 +63,7 @@ class Payload:
             return False
         return isinstance(self._body, str)
 
-    def to_json(self) -> Optional[str]:
+    def to_json(self) -> str:
         """Return payload as JSON string.
 
         :raises ValueError: If payload is bytes type
@@ -79,7 +80,7 @@ class Payload:
                     type(self._body),
                 ),
             )
-        return {}
+        return "{}"
 
     def to_bytes(self) -> Optional[bytes]:
         """Return payload as bytes.
@@ -96,6 +97,7 @@ class Payload:
                     type(self._body)
                 ),
             )
+        return None
 
     def to_text(self) -> Optional[str]:
         """Return payload as bytes.
@@ -112,3 +114,4 @@ class Payload:
                     type(self._body)
                 ),
             )
+        return None

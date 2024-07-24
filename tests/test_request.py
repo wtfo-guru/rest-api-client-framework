@@ -74,17 +74,6 @@ def test_get_request_with_params(
     assert response.data() == FOO_BAR
 
 
-def test_get_request_gzipped(
-    request_client_http_bin: RestRequest,
-):
-    response = request_client_http_bin.call_endpoint(
-        "get_gzip",
-        headers={"Accept": "application/json", "Accept-Encoding": "gzip"},
-    )
-    assert response.is_json()
-    assert response.data()["gzipped"]
-
-
 def test_delete_request_with_params(
     request_client: RestRequest,
     httpserver: HTTPServer,

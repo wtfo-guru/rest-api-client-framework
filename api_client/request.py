@@ -26,6 +26,8 @@ from api_client.response import RestResponse
 
 _CONTENT_TYPE_KEY = "Content-Type"
 
+Headers = CaseInsensitiveDict[str, str]
+
 
 class ExecutionMode(Enum):
     """ExecutionMode class."""
@@ -76,7 +78,7 @@ class RestRequest:  # noqa: WPS214
         self,
         name: str,
         payload: Optional[Payload] = None,
-        headers: Optional[CaseInsensitiveDict] = None,
+        headers: Optional[Headers] = None,
         mode: ExecutionMode = ExecutionMode.SYNC,
         **kwargs: IntStrBool,
     ) -> RestResponse:
@@ -86,8 +88,8 @@ class RestRequest:  # noqa: WPS214
         :type name: str
         :param payload: Payload to send, defaults to None
         :type payload: Optional[Payload], optional
-        :param headers: CaseInsensitiveDict to send, defaults to None
-        :type headers: Optional[CaseInsensitiveDict], optional
+        :param headers: Headers to send, defaults to None
+        :type headers: Optional[Headers], optional
         :param mode: Sync or async, defaults to ExecutionMode.SYNC
         :type mode: ExecutionMode, optional
         :raises EndpointNotFoundError: If endpoint not found
@@ -131,7 +133,7 @@ class RestRequest:  # noqa: WPS214
         self,
         url: str,
         method: HTTPMethod,
-        headers: CaseInsensitiveDict,
+        headers: Headers,
         timeout: ReqTimeOut,
         payload: Optional[Payload] = None,
         **kwargs: Any,
@@ -229,13 +231,11 @@ class RestRequest:  # noqa: WPS214
         raise ApiClientError(response=response)
 
     @classmethod
-    def _add_key_if_missing(
-        cls, headers: CaseInsensitiveDict, key: str, header: str
-    ) -> None:
+    def _add_key_if_missing(cls, headers: Headers, key: str, header: str) -> None:
         """Add the value to the map if it doesn't already exist.
 
         :param headers: Request headers
-        :type headers: CaseInsensitiveDict
+        :type headers: Headers
         :param key: Header key
         :type key: str
         :param header: Header value
@@ -249,16 +249,16 @@ class RestRequest:  # noqa: WPS214
             headers[key] = header
 
     def _prepare_headers(
-        self, payload: Payload, headers: Optional[CaseInsensitiveDict] = None
-    ) -> CaseInsensitiveDict:
+        self, payload: Payload, headers: Optional[Headers] = None
+    ) -> Headers:
         """Prepare headers.
 
         :param payload: The Payload object
         :type payload: Payload
         :param headers: Request headers, defaults to None
-        :type headers: Optional[CaseInsensitiveDict], optional
+        :type headers: Optional[Headers], optional
         :return: Prepared request headers
-        :rtype: CaseInsensitiveDict
+        :rtype: Headers
         """
         if headers is None:
             heads = {}

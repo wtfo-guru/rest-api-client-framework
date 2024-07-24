@@ -1,5 +1,6 @@
 import hashlib
 from http import HTTPStatus
+
 from pyfakefs.fake_filesystem import FakeFilesystem
 from requests import Response
 

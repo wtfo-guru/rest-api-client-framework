@@ -123,13 +123,6 @@ def request_client() -> RestRequest:
 
 
 @pytest.fixture
-def request_client_http_bin() -> RestRequest:
-    endpoints: List[Endpoint] = []
-    endpoints.append(Endpoint(name="get_gzip", path="/gzip"))
-    return RestRequest("https://httpbin.org", endpoints, "abc")
-
-
-@pytest.fixture
 def response() -> Response:
     rr = Response()
     rr._content = '{"foo": "bar"}'.encode("utf-8")  # noqa: WPS437

@@ -1,9 +1,11 @@
-name: Pacwrap CI
+name: Wtfquotes CI
+# Run this job on pushes to `main`, and for pull requests. If you don't specify
+# `branches: [main], then this actions runs _twice_ on pull requests, which is
+# annoying.
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -15,11 +17,20 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  # Label of the runner job
+  runner-job:
+    # You must use a Linux environment when using service containers or container jobs
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.10', '3.11', '3.12']
+    # Service containers to run with `runner-job`
+    services:
+      # Label used to access the service container
+      httpbin:
+        image: "kennethreitz/httpbin"
+        ports:
+          - "8000:80"
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
@@ -48,7 +59,7 @@ jobs:
       run: poetry install --no-interaction --with test
 
     - name: Run checks
-      run: make test
+      run: GITHUB_ACTION=yes make test
 
     # Upload coverage to codecov: https://codecov.io/
     - name: Upload coverage to Codecov
