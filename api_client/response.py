@@ -118,7 +118,7 @@ class RestResponse(io.IOBase):
         """
         # find extension
         o_path = Path(path)
-        ext = o_path.suffix
+        ext = o_path.suffix.lstrip(".")
 
         add_ext_to_path = False
         if not (ext and ext in {_JSON, "png", "jpg", "pdf", "webp"}):

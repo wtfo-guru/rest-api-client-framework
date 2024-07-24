@@ -1,12 +1,16 @@
-import base64
 import os
+
+os.environ["REST_API_CLIENT_FRAMEWORK_TESTING"] = "Yes"
+os.environ["REST_API_CLIENT_FRAMEWORK_LOG_LEVEL"] = "DEBUG"
+
+import base64
 from http import HTTPStatus
-from typing import List
+from typing import Dict, List
 
 import pytest
 from requests import Response
 
-from api_client.endpoint import Endpoint
+from api_client.endpoint import Endpoint, HTTPMethod
 from api_client.request import RestRequest
 
 EXAMPLE_IMAGE = (
@@ -83,7 +87,10 @@ EXAMPLE_IMAGE = (
     "RRcGO6WxvLwygTKc+ekZHGQCCY+x64rxiN2ilWQdBww9QetehDWGvoTfW6P/2Q=="
 )
 
-os.environ["REST_API_CLIENT_FRAMEWORK_TESTING"] = "Yes"
+
+@pytest.fixture
+def foo_bar() -> Dict[str, str]:
+    return {"foo": "bar"}
 
 
 @pytest.fixture
@@ -100,7 +107,26 @@ def httpserver_listen_address():
 def request_client() -> RestRequest:
     endpoints: List[Endpoint] = []
     endpoints.append(Endpoint(name="post_v1_data", path="/v1/data"))
+    endpoints.append(
+        Endpoint(name="get_v1_data", path="/v1/data", query_parameters=["abcd", "efgh"])
+    )
+    endpoints.append(Endpoint(name="delete_v1_data", path="/v1/data/{id}"))
+    endpoints.append(Endpoint(name="put_v1_data", path="/v1/data/{id}"))
+    endpoints.append(
+        Endpoint(
+            name="wtf_upload",
+            path="/{version}/upload",
+            request_method=HTTPMethod.POST,
+        )
+    )
     return RestRequest("http://127.0.0.1:5050", endpoints, "abc")
+
+
+@pytest.fixture
+def request_client_http_bin() -> RestRequest:
+    endpoints: List[Endpoint] = []
+    endpoints.append(Endpoint(name="get_gzip", path="/gzip"))
+    return RestRequest("https://httpbin.org", endpoints, "abc")
 
 
 @pytest.fixture

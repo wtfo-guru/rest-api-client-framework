@@ -30,7 +30,7 @@ class Payload:
         self._content_type = content_type
 
     @property
-    def content_type(self) -> str:
+    def content_type(self) -> Optional[str]:
         if self._content_type is not None:
             return self._content_type
         if self._body is None:
@@ -39,12 +39,6 @@ class Payload:
             return "application/json"
         if isinstance(self._body, str):
             return "text/plain"
-        raise ValueError(
-            "Content-Type cannot be determined for payload type {0}.".format(
-                type(self._body),
-            ),
-        )
-
 
     @property
     def is_bytes(self) -> bool:
@@ -56,6 +50,17 @@ class Payload:
         if self._body is None:
             return False
         return isinstance(self._body, bytes)
+
+    @property
+    def is_text(self) -> bool:
+        """Return true if payload type is text/str.
+
+        :return: True if payload is text/str
+        :rtype: bool
+        """
+        if self._body is None:
+            return False
+        return isinstance(self._body, str)
 
     def to_json(self) -> Optional[str]:
         """Return payload as JSON string.
@@ -87,7 +92,9 @@ class Payload:
             if isinstance(self._body, bytes):
                 return self._body
             raise ValueError(
-                "Payload type {0} cannot be expressed as bytes.".format(type(self._body)),
+                "Payload type {0} cannot be expressed as bytes.".format(
+                    type(self._body)
+                ),
             )
 
     def to_text(self) -> Optional[str]:
@@ -101,5 +108,7 @@ class Payload:
             if isinstance(self._body, str):
                 return self._body
             raise ValueError(
-                "Payload type {0} cannot be expressed as text.".format(type(self._body)),
+                "Payload type {0} cannot be expressed as text.".format(
+                    type(self._body)
+                ),
             )

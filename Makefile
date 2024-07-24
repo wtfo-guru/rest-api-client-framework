@@ -50,6 +50,7 @@ package:
 
 .PHONY: test
 test: lint package unit
+	poetry run coverage-badge -f -o coverage.svg
 
 # .PHONY: publish
 # publish: clean-build test

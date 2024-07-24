@@ -65,7 +65,7 @@ def test_missing_method_name_exception():
             token=TT,
             enableBlocking=True,
         )
-        assert re.search(".*{0}.*".format(name), ex.value.msg)
+    assert re.search(".*{0}.*".format(name), ex.value.msg)
 
 
 def test_missing_argument_exception():
@@ -81,4 +81,4 @@ def test_missing_argument_exception():
     url_root = "https://example.com/api/v3"
     with pytest.raises(MissingArgumentError) as ex:
         url, method = enable_blocking.prepare(url_root, token=TT, enableBlocking=True)
-        assert ex.value.msg == MISSING_ARGUMENT_MSG_FMT.format("'action'")
+    assert ex.value.msg == MISSING_ARGUMENT_MSG_FMT.format("'action'")

@@ -1,6 +1,6 @@
 import hashlib
 from http import HTTPStatus
-
+from pyfakefs.fake_filesystem import FakeFilesystem
 from requests import Response
 
 from api_client.response import RestResponse
@@ -28,11 +28,12 @@ def test_parse_response(response: Response):
     assert resp.data() == {"foo": "bar"}
 
 
-def test_save_json_in_file(response: Response):
+def test_save_json_in_file(response: Response, fs: FakeFilesystem):
+    fs.create_dir("/testing")
     resp = RestResponse(response)
     assert resp.is_json()
-    assert resp.save("/tmp/test.json")
-    assert_file_hash("/tmp/test.json", "94232c5b8fc9272f6f73a1e36eb68fcf")
+    assert resp.save("/testing/test.json")
+    assert_file_hash("/testing/test.json", "94232c5b8fc9272f6f73a1e36eb68fcf")
 
 
 def test_image_as_response(response_image: Response):

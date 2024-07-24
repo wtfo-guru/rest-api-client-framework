@@ -7,11 +7,13 @@ Classes:
     RestRequest
 """
 
+import re
 from enum import Enum
 from http import HTTPStatus
 from typing import Any, Dict, List, Optional, Union
 
 import requests
+from requests.structures import CaseInsensitiveDict
 
 from api_client.constants import VERSION
 from api_client.endpoint import Endpoint, HTTPMethod, ReqTimeOut
@@ -23,7 +25,6 @@ from api_client.response import RestResponse
 
 
 _CONTENT_TYPE_KEY = "Content-Type"
-Headers = Dict[str, str]
 
 
 class ExecutionMode(Enum):
@@ -75,7 +76,7 @@ class RestRequest:  # noqa: WPS214
         self,
         name: str,
         payload: Optional[Payload] = None,
-        headers: Optional[Headers] = None,
+        headers: Optional[CaseInsensitiveDict] = None,
         mode: ExecutionMode = ExecutionMode.SYNC,
         **kwargs: IntStrBool,
     ) -> RestResponse:
@@ -85,8 +86,8 @@ class RestRequest:  # noqa: WPS214
         :type name: str
         :param payload: Payload to send, defaults to None
         :type payload: Optional[Payload], optional
-        :param headers: Headers to send, defaults to None
-        :type headers: Optional[Headers], optional
+        :param headers: CaseInsensitiveDict to send, defaults to None
+        :type headers: Optional[CaseInsensitiveDict], optional
         :param mode: Sync or async, defaults to ExecutionMode.SYNC
         :type mode: ExecutionMode, optional
         :raises EndpointNotFoundError: If endpoint not found
@@ -130,7 +131,7 @@ class RestRequest:  # noqa: WPS214
         self,
         url: str,
         method: HTTPMethod,
-        headers: Headers,
+        headers: CaseInsensitiveDict,
         timeout: ReqTimeOut,
         payload: Optional[Payload] = None,
         **kwargs: Any,
@@ -228,28 +229,36 @@ class RestRequest:  # noqa: WPS214
         raise ApiClientError(response=response)
 
     @classmethod
-    def _add_key_if_missing(cls, headers: Headers, key: str, header: str) -> None:
+    def _add_key_if_missing(
+        cls, headers: CaseInsensitiveDict, key: str, header: str
+    ) -> None:
         """Add the value to the map if it doesn't already exist.
 
         :param headers: Request headers
-        :type headers: Headers
+        :type headers: CaseInsensitiveDict
         :param key: Header key
         :type key: str
         :param header: Header value
         :type header: str
         """
         if key not in headers:
+            if re.match(_CONTENT_TYPE_KEY, key, re.IGNORECASE) and header == "None":
+                raise ValueError(
+                    "header '{0}' cannot be 'None'.".format(_CONTENT_TYPE_KEY),
+                )
             headers[key] = header
 
-    def _prepare_headers(self, payload: Payload, headers: Optional[Headers] = None) -> Headers:
+    def _prepare_headers(
+        self, payload: Payload, headers: Optional[CaseInsensitiveDict] = None
+    ) -> CaseInsensitiveDict:
         """Prepare headers.
 
         :param payload: The Payload object
         :type payload: Payload
         :param headers: Request headers, defaults to None
-        :type headers: Optional[Headers], optional
+        :type headers: Optional[CaseInsensitiveDict], optional
         :return: Prepared request headers
-        :rtype: Headers
+        :rtype: CaseInsensitiveDict
         """
         if headers is None:
             heads = {}
