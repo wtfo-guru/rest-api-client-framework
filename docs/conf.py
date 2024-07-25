@@ -28,8 +28,8 @@ def _get_project_meta():
 
 pkg_meta = _get_project_meta()
 project = str(pkg_meta["name"])
-copyright = "2022, wtfo-guru"  # noqa: WPS125
-author = "wtfo-guru"
+copyright = "2024, Quien Sabe"
+author = "Quien Sabe <qs5779@mail.com>"
 
 # The short X.Y version
 version = str(pkg_meta["version"])

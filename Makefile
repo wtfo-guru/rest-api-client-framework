@@ -2,8 +2,9 @@ SHELL:=/usr/bin/env bash
 
 PROJECT_NAME ?= $(shell basename $$(git rev-parse --show-toplevel) | sed -e "s/^python-//")
 PACKAGE_DIR ?= api_client
+PROJECT_VERSION ?= $(shell grep ^current_version .bumpversion.cfg | awk '{print $$NF'})
+BUILD_VERSION ?= $(shell echo $(PROJECT_VERSION) | tr '-' '.')
 BUILD_NAME ?= $(shell echo $(PROJECT_NAME) | tr "-" "_")
-PROJECT_VERSION ?= $(shell grep ^current_version .bumpversion.cfg | awk '{print $$NF'} | tr '-' '.')
 WHEELS ?= /home/jim/kbfs/private/jim5779/wheels
 TEST_DIR = tests
 
@@ -69,10 +70,28 @@ build: clean-build test
 	cp dist/$(BUILD_NAME)-$(PROJECT_VERSION)-py3-none-any.whl $(WHEELS)
 	sync-wheels
 
+docs/pages/changelog.rst: CHANGELOG.md
+	m2r2 --overwrite CHANGELOG.md
+	mv -f ./CHANGELOG.rst ./docs/pages/changelog.rst
+
+docs/pages/contributing.rst: CONTRIBUTING.md
+	m2r2 --overwrite CONTRIBUTING.md
+	mv -f ./CONTRIBUTING.rst ./docs/pages/contributing.rst
+
+
+.PHONY: release
+ifeq (,$(findstring dev,$(PRODUCT_VERSION)))
+release: docs/pages/changelog.rst docs/pages/contributing.rst
+	$(shell verbump release )
+	@echo "Releasing: " $(shell grep ^current_version .bumpversion.cfg | awk '{print $$NF'})
+else
+release:
+	@echo "Version: $(PRODUCT_VERSION) is a release version."
+endif
 
 .PHONY: docs
-docs:
-	@cd docs && $(MAKE) $@
+docs: docs/pages/changelog.rst docs/pages/contributing.rst
+	@cd docs && $(MAKE) html
 
 .PHONY: clean clean-build clean-pyc clean-test
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts

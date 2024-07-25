@@ -1,10 +1,8 @@
-import os
-
 import pytest
 
-py_test_mark = pytest.mark.skipif(
-    os.getenv("GITHUB_ENV") is None, reason="We are not running on GitHub, Dorothy."
-)
+from tests.conftest import github
+
+pytestmark = pytest.mark.skipif(not github(), reason="We are not on GitHub, Dorothy.")
 
 from typing import List
 

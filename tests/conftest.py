@@ -2,6 +2,7 @@
 Module conftest module for package tests of rest-api-client-framework library.
 
 Functions:
+    github
     foo_bar
     image_bytes
     httpserver_listen_address
@@ -98,6 +99,11 @@ EXAMPLE_IMAGE = (
     "OjmC7i1BLfyY74yGSH/n3u4jtuIOp6N8y+qnisHwxfrbyEiztriWMkiOeHzkfPTcmRnHUehFdj4ktdaX"
     "RRcGO6WxvLwygTKc+ekZHGQCCY+x64rxiN2ilWQdBww9QetehDWGvoTfW6P/2Q=="
 )
+
+
+def github() -> bool:
+    """Test if running in github workflow."""
+    return os.getenv("GITHUB_ENV") is not None
 
 
 @pytest.fixture

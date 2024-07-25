@@ -1,10 +1,17 @@
-import os
+"""
+Module test_local_httpbin module for package tests of rest-api-client-framework library.
 
+Functions:
+    is_responsive
+    httpbin_service
+    request_client_http_bin_local
+    test_get_request_gzipped_local
+"""
 import pytest
 
-py_test_mark = pytest.mark.skipif(
-    os.getenv("GITHUB_ENV") is not None, reason="We are not running locally, Dorothy."
-)
+from tests.conftest import github
+
+pytestmark = pytest.mark.skipif(github(), reason="We are not running locally, Dorothy.")
 
 from typing import List
 
@@ -38,16 +45,16 @@ def httpbin_service(docker_ip, docker_services):
 
 
 @pytest.fixture(scope="module")
-def request_client_http_bin_local(http_service) -> RestRequest:
+def request_client_http_bin_local(httpbin_service) -> RestRequest:
     endpoints: List[Endpoint] = []
     endpoints.append(Endpoint(name="get_gzip", path="/gzip"))
     return RestRequest(httpbin_service, endpoints, "abc")
 
 
 def test_get_request_gzipped_local(
-    request_client_http_bin: RestRequest,
+    request_client_http_bin_local: RestRequest,
 ):
-    response = request_client_http_bin.call_endpoint(
+    response = request_client_http_bin_local.call_endpoint(
         "get_gzip",
         headers={"Accept": "application/json", "Accept-Encoding": "gzip"},
     )
