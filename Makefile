@@ -79,6 +79,15 @@ docs/pages/contributing.rst: CONTRIBUTING.md
 	mv -f ./CONTRIBUTING.rst ./docs/pages/contributing.rst
 
 
+.PHONY: wtf
+wtf:
+	$(eval RV := 0.1.0)
+	$(eval CL := $(shell check-changefile-version $(RV)))
+	# $(shell grep $(RV) CHANGELOG.md | awk '{print $$2}')
+	@echo "RV: $(RV)"
+	@echo "CL: $(CL)"
+
+
 .PHONY: release
 ifeq (,$(findstring dev,$(PRODUCT_VERSION)))
 release: docs/pages/changelog.rst docs/pages/contributing.rst

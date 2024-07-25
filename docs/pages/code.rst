@@ -1,25 +1,22 @@
 :orphan:
 
-.. automodule:: wtforglib
+.. automodule:: api_client.constants
     :members:
 
-.. automodule:: wtforglib.errors
+.. automodule:: api_client.endpoint
     :members:
 
-.. automodule:: wtforglib.files
+.. automodule:: api_client.exception
     :members:
 
-.. automodule:: wtforglib.functions
+.. automodule:: api_client.payload
     :members:
 
-.. automodule:: wtforglib.kinds
+.. automodule:: api_client.supers
     :members:
 
-.. automodule:: wtforglib.supers
+.. automodule:: api_client.request
     :members:
 
-.. automodule:: wtforglib.validators
-    :members:
-
-.. automodule:: wtforglib.versioned
+.. automodule:: api_client.response
     :members:
