@@ -7,6 +7,7 @@ Functions:
     request_client_http_bin_local
     test_get_request_gzipped_local
 """
+
 import pytest
 
 from tests.conftest import github

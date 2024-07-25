@@ -82,8 +82,8 @@ docs/pages/contributing.rst: CONTRIBUTING.md
 .PHONY: release
 ifeq (,$(findstring dev,$(PRODUCT_VERSION)))
 release: docs/pages/changelog.rst docs/pages/contributing.rst
-	$(shell verbump release )
-	@echo "Releasing: " $(shell grep ^current_version .bumpversion.cfg | awk '{print $$NF'})
+	$(eval RV := $(shell verbump release | grep -m2 "current_version" | tail -n1 | awk '{print $$NF}'))
+	@echo "Releasing version: $(RV)"
 else
 release:
 	@echo "Version: $(PRODUCT_VERSION) is a release version."

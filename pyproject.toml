@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rest-api-client-framework"
-version = "0.1.0-dev0"
+version = "0.1.0"
 description = "Generic Rest Api Client Framework"
 authors = ["Quien Sabe <qs5779@mail.com>"]
 license = "MIT"
