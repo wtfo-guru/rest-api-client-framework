@@ -65,6 +65,7 @@ test: lint package unit
 
 .PHONY: build
 build: clean-build test
+	# TODO: don't publish release version
 	manage-tag.sh -u v$(PROJECT_VERSION)
 	poetry build
 	cp dist/$(BUILD_NAME)-$(PROJECT_VERSION)-py3-none-any.whl $(WHEELS)
@@ -78,36 +79,33 @@ docs/pages/contributing.rst: CONTRIBUTING.md
 	m2r2 --overwrite CONTRIBUTING.md
 	mv -f ./CONTRIBUTING.rst ./docs/pages/contributing.rst
 
-
-.PHONY: wtf
-wtf:
-	$(eval RV := 0.1.0)
-	$(eval CL := $(shell check-changefile-version $(RV)))
-	# $(shell grep $(RV) CHANGELOG.md | awk '{print $$2}')
-	@echo "RV: $(RV)"
-	@echo "CL: $(CL)"
-
-
 .PHONY: release
-ifeq (,$(findstring dev,$(PRODUCT_VERSION)))
-release: docs/pages/changelog.rst docs/pages/contributing.rst
-	$(eval RV := $(shell verbump release | grep -m2 "current_version" | tail -n1 | awk '{print $$NF}'))
-	@echo "Releasing version: $(RV)"
-else
-release:
-	@echo "Version: $(PRODUCT_VERSION) is a release version."
-endif
+release: test docs/pages/changelog.rst docs/pages/contributing.rst
+	$(eval OK := $(shell check-release-okay))
+	@if [ "$(OK)" == "YES" ]; then\
+		bump-release
+	else\
+		echo $(OK);\
+	fi
 
 .PHONY: docs
 docs: docs/pages/changelog.rst docs/pages/contributing.rst
-	@cd docs && $(MAKE) html
+# TODO: check if doc8 is in virtual environment if yes rebuild virtual environment
+# TODO: dynamically determin vitual environment python version
+# poetry env remove 3.10
+# poetry update --with docs
+#	@cd docs && SPHINXOPTS="-vvW" BUILD="SPHINXBUILD="poetry run sphinx-build" $(MAKE) html
+	$(error "Docs are built automatically by https://readthedocs.org")
 
-.PHONY: clean clean-build clean-pyc clean-test
-clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
+.PHONY: clean clean-build clean-pyc clean-test clean-docs
+clean: clean-build clean-pyc clean-test clean-docs ## remove all build, test, coverage and Python artifacts
+
+clean-docs: ## remove docs artifacts
+	rm -fr docs/_build docs/node_modules/
+	rm -f docs/.linthtmlrc.yaml docs/package-lock.json docs/package.json
 
 clean-build: ## remove build artifacts
 	rm -fr build/
-	rm -fr docs/_build
 	rm -fr dist/
 	rm -fr .eggs/
 	find . -name '*.egg-info' -exec rm -fr {} +

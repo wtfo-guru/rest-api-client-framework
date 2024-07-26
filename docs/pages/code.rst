@@ -12,9 +12,6 @@
 .. automodule:: api_client.payload
     :members:
 
-.. automodule:: api_client.supers
-    :members:
-
 .. automodule:: api_client.request
     :members:
 
