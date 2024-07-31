@@ -28,7 +28,7 @@ def request_client_http_bin_github() -> RestRequest:
 
 def test_get_request_gzipped_github(request_client_http_bin_github: RestRequest):
     """Test get request gzipped github."""
-    response = test_get_request_gzipped_github.call_endpoint(
+    response = request_client_http_bin_github.call_endpoint(
         "get_gzip",
         headers={"Accept": "application/json", "Accept-Encoding": "gzip"},
     )
