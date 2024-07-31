@@ -83,7 +83,7 @@ docs/pages/contributing.rst: CONTRIBUTING.md
 release: test docs/pages/changelog.rst docs/pages/contributing.rst
 	$(eval OK := $(shell check-release-okay))
 	@if [ "$(OK)" == "YES" ]; then\
-		bump-release
+		bump-release;\
 	else\
 		echo $(OK);\
 	fi
