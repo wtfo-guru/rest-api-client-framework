@@ -1,61 +1,50 @@
 # Overall
-Rest API client for Python
 
-Simple REST API client for Python
+Generic REST API client for Python
 
 ## Installation
 
-Use the package manager pip to install our client in Python.
+Initially this library is available only on github, however I plan to publish on
+pypi.org when it becomes stable.
 
-```bash
-pip install gawsoft-api-client
+
+```sh
+pipx install git+https://github.com/wtfo-guru/rest-api-client-framework.git
 ```
 
-OR
-```bash
-pip3 install gawsoft-api-client
-```
 
 ## Usage
+
 Write your client api
+
 ```python
-from gawsoft.api_client import Request, Response
+
+from api_client.endpoint import Endpoint
+from api_client.request import RestRequest
+from api_client.response import RestResponse
 
 
-class Client(Request):
-    def __init__(
-        self,
-        api_key: str,
-        api_version: str ='',
-        api_host: str = 'http://httpbin.org',
-        user_agent: str = 'Example Api Python client'
-     ):
-        super().__init__(api_key, api_version, api_host, user_agent)
+endpoint = Endpoint(
+    name="disable_blocking",
+    path="/api/settings/temporaryDisableBlocking",
+    request_method=HTTPMethod.GET,
+    query_parameters=("minutes"),
+)
+req = RestRequest(
+    endpoints=endpoint,
+    api_root="https://technitium.examplse.com,
+    user_agent="I am an example client",
+)
 
-    def info(self, link: str, params: dict = {}) -> Response:
-        return self.request(link, 'POST', params)
-
-
-c = Client("abc")
-response = c.info("delay/1")
-print(response.status_code)
-print(response.data())
+resp = req.call_endpoint("disable_blocking", token="apitoken", minutes=5)
 ```
 
 
 ## Tests
+
 ```sh
+
 make test
-make mypy
-```
-
-## Release
-```sh
-# Release in test env
-make release-test
-
-# Real release
-make release
 ```
 
 ## License
