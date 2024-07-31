@@ -4,18 +4,18 @@ updates:
   directory: "/"
   schedule:
     interval: monthly
-    time: "01:25"
+    time: "02:30"
   open-pull-requests-limit: 10
 - package-ecosystem: pip
   directory: "/docs"
   schedule:
     interval: monthly
-    time: "01:25"
+    time: "02:30"
   open-pull-requests-limit: 10
 
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
     interval: monthly
-    time: "01:25"
+    time: "02:30"
   open-pull-requests-limit: 10
