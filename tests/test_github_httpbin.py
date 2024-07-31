@@ -23,7 +23,8 @@ def request_client_http_bin_github() -> RestRequest:
     """Fixture request client http bin github."""
     endpoints: List[Endpoint] = []
     endpoints.append(Endpoint(name="get_gzip", path="/gzip"))
-    return RestRequest("http://httpbin:8000", endpoints, "abc")
+    # return RestRequest("http://httpbin:8000", endpoints, "abc")
+    return RestRequest("http://127.0.0.1:8000", endpoints, "abc")
 
 
 def test_get_request_gzipped_github(request_client_http_bin_github: RestRequest):
