@@ -1,0 +1,6 @@
+services:
+  httpbin:
+    image: "kennethreitz/httpbin"
+    ports:
+      - "8000:80"
+    restart: no

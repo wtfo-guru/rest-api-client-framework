@@ -1,0 +1,17 @@
+{
+  "python.testing.pytestArgs": [
+      "--override-ini",
+      "addopts=--verbose -vv tests"
+  ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  "autoDocstring.docstringFormat": "sphinx",
+  "cSpell.words": [
+    "efgh",
+    "gawsoftpl",
+    "hdrs",
+    "httpbin",
+    "paolorechia",
+    "technitium"
+  ]
+}
