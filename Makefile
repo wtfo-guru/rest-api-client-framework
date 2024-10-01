@@ -12,6 +12,7 @@ TEST_DIR = tests
 .PHONY: update
 update:
 	poetry update --with test --with docs --with dev
+	pre-commit autoupdate
 
 .PHONY: vars
 vars:
