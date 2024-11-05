@@ -12,7 +12,7 @@ TEST_DIR = tests
 .PHONY: update
 update:
 	poetry update --with test --with docs --with dev
-	pre-commit autoupdate
+	pre-commit-update-repo.sh
 
 .PHONY: vars
 vars:
@@ -48,11 +48,17 @@ unit:
 package:
 	poetry check
 	poetry run pip check
-	# poetry run safety check --full-report
+
+.PHONY: safety
+safety:
+	poetry run safety scan --full-report
 
 .PHONY: test
 test: lint package unit
 	poetry run coverage-badge -f -o coverage.svg
+
+.PHONY: ghtest
+ghtest: lint package unit
 
 # .PHONY: publish
 # publish: clean-build test
@@ -64,10 +70,12 @@ test: lint package unit
 # 	manage-tag.sh -u v$(PROJECT_VERSION)
 # 	poetry publish --build -r test-pypi
 
-.PHONY: build
-build: clean-build test
-	# TODO: don't publish release version
+.PHONY: tag
+tag:
 	manage-tag.sh -u v$(PROJECT_VERSION)
+
+.PHONY: build
+build: clean-build test tag
 	poetry build
 	cp dist/$(BUILD_NAME)-$(PROJECT_VERSION)-py3-none-any.whl $(WHEELS)
 	sync-wheels
