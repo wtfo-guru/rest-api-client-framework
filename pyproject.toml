@@ -49,7 +49,7 @@ optional = true
 [tool.poetry.group.dev.dependencies]
 click = "^8.1.7"
 yaml-settings-pydantic = {git = "https://github.com/acederberg/pydantic-settings-yaml.git", rev = "2.3.1"}
-pdoc3 = "^0.11.1"
+pdoc3 = "^0.11.3"
 loguru = "^0.7.2"
 
 [build-system]
