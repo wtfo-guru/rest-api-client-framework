@@ -17,8 +17,8 @@ from typing import List, Optional, Tuple, Union
 
 from pydantic import BaseModel
 
-from api_client import logger
 from api_client.exception import MissingArgumentError, MissingMethodNameError
+from api_client.logger import logger
 from api_client.payload import IntStrBool
 
 SUPPORTED_REQUEST_METHODS = frozenset(("get", "post", "put", "patch", "delete"))
