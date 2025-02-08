@@ -5,7 +5,6 @@ PACKAGE_DIR ?= api_client
 PROJECT_VERSION ?= $(shell grep ^current_version .bumpversion.cfg | awk '{print $$NF'})
 BUILD_VERSION ?= $(shell echo $(PROJECT_VERSION) | tr '-' '.')
 BUILD_NAME ?= $(shell echo $(PROJECT_NAME) | tr "-" "_")
-WHEELS ?= /home/jim/kbfs/private/jim5779/wheels
 TEST_DIR = tests
 
 
@@ -77,8 +76,7 @@ tag:
 .PHONY: build
 build: clean-build test tag
 	poetry build
-	cp dist/$(BUILD_NAME)-$(PROJECT_VERSION)-py3-none-any.whl $(WHEELS)
-	sync-wheels
+	sync-wheels.sh dist/$(BUILD_NAME)-$(PROJECT_VERSION)-py3-none-any.whl $(WHEELS)
 
 docs/pages/changelog.rst: CHANGELOG.md
 	m2r2 --overwrite CHANGELOG.md
