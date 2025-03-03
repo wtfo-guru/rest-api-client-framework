@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rest-api-client-framework"
-version = "0.1.2-dev5"
+version = "0.1.2-dev6"
 description = "Generic Rest Api Client Framework"
 authors = ["Quien Sabe <qs5779@mail.com>"]
 license = "MIT"
@@ -35,7 +35,7 @@ optional = true
 
 [tool.poetry.group.test.dependencies]
 mypy = "^1.11"
-wemake-python-styleguide = "^1.0.0"
+wemake-python-styleguide = "^1.0"
 flake8-pytest-style = ">=1.6,<3.0"
 black = "^25.0"
 isort = "^6.0"
@@ -46,13 +46,14 @@ pytest-httpserver = "^1.0.0"
 pyfakefs = "^5.7"
 pytest-docker = "^3.1.1"
 doc8 = "^1.1.1"
+safety = "^3.3.1"
 
 [tool.poetry.group.docs]
 optional = true
 
 [tool.poetry.group.docs.dependencies]
 sphinx = "^8.0"
-sphinx-autodoc-typehints = ">=1.24,<3.0"
+sphinx-autodoc-typehints = "^3.0"
 tomli = "^2.0"
 m2r2 = "^0.3.3.post2"
 

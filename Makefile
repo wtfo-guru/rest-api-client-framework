@@ -53,7 +53,7 @@ safety:
 	poetry run safety scan --full-report
 
 .PHONY: test
-test: lint package unit
+test: safety ghtest
 	poetry run coverage-badge -f -o coverage.svg
 
 .PHONY: ghtest
