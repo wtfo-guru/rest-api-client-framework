@@ -22,6 +22,7 @@ from typing import Dict, List
 
 import pytest
 from requests import Response
+from requests.structures import CaseInsensitiveDict
 
 from api_client.endpoint import Endpoint, HTTPMethod
 from api_client.request import RestRequest
@@ -119,7 +120,7 @@ def image_bytes() -> bytes:
 
 
 @pytest.fixture(scope="session")
-def httpserver_listen_address():
+def httpserver_listen_address() -> tuple[str, int]:
     """Fixture httpserver_listen_address."""
     return ("127.0.0.1", 5050)
 
@@ -154,7 +155,9 @@ def response() -> Response:
     rr = Response()
     rr._content = '{"foo": "bar"}'.encode("utf-8")  # noqa: WPS437
     rr.status_code = HTTPStatus.OK
-    rr.headers = {"Content-Type": "application/json", "Accept": "application/gzip"}
+    rr.headers = CaseInsensitiveDict(
+        {"Content-Type": "application/json", "Accept": "application/gzip"}
+    )
 
     return rr
 
@@ -165,8 +168,6 @@ def response_image() -> Response:
     rr = Response()
     rr._content = base64.b64decode(EXAMPLE_IMAGE)  # noqa: WPS437
     rr.status_code = HTTPStatus.OK
-    rr.headers = {
-        "Content-Type": "image/png",
-    }
+    rr.headers = CaseInsensitiveDict({"Content-Type": "image/png"})
 
     return rr

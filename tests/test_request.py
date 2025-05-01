@@ -17,6 +17,7 @@ from typing import Dict
 
 import pytest
 from pytest_httpserver import HTTPServer
+from requests.structures import CaseInsensitiveDict
 
 from api_client.exception import ApiClientError
 from api_client.payload import Payload
@@ -139,7 +140,7 @@ def test_post_request_with_image(
     ).respond_with_json(foo_bar)
 
     payload = Payload(image_bytes)
-    headers = {"Content-Type": "image/png"}
+    headers = CaseInsensitiveDict({"Content-Type": "image/png"})
     response = request_client.call_endpoint(
         "wtf_upload",
         payload,

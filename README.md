@@ -1,5 +1,10 @@
 # Overall
 
+[![Build Status](https://github.com/wtfo-guru/rest-api-client-framework/workflows/RestApiClientFramwork/badge.svg)](https://github.com/wtfo-guru/rest-api-client-framework/actions?query=workflow%3Atest)
+[![codecov](https://codecov.io/gh/wtfo-guru/rest-api-client-framework/branch/main/graph/badge.svg)](https://codecov.io/gh/wtfo-guru/rest-api-client-framework)
+[![Python Version](https://img.shields.io/pypi/pyversions/rest-api-client-framework.svg)](https://pypi.org/project/rest-api-client-framework/)
+[![wemake-python-styleguide](https://img.shields.io/badge/style-wemake-000000.svg)](https://github.com/wemake-services/wemake-python-styleguide)
+
 Generic REST API client for Python
 
 ## Installation

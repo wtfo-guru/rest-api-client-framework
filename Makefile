@@ -1,118 +1,104 @@
 SHELL:=/usr/bin/env bash
 
-PROJECT_NAME ?= $(shell basename $$(git rev-parse --show-toplevel) | sed -e "s/^python-//")
-PACKAGE_DIR ?= api_client
-PROJECT_VERSION ?= $(shell grep ^current_version .bumpversion.cfg | awk '{print $$NF'})
-BUILD_VERSION ?= $(shell echo $(PROJECT_VERSION) | tr '-' '.')
-BUILD_NAME ?= $(shell echo $(PROJECT_NAME) | tr "-" "_")
-TEST_DIR = tests
-
+PROJECT_NAME = $(shell head -10 pyproject.toml|grep ^name | awk '{print $$NF}'|tr -d '"' | tr '-' '_')
+PROJECT_DIR=api_client
+PROJECT_VERSION = $(shell head -10 pyproject.toml|grep ^version | awk '{print $$NF}'|tr -d '"')
+WHEEL_VERSION = $(shell echo $(PROJECT_VERSION)|sed -e 's/-dev/.dev/')
+BUMP_VERSION = $(shell grep ^current_version .bumpversion.cfg | awk '{print $$NF}')
+CONST_VERSION = $(shell grep ^VERSION $(PROJECT_NAME)/constants.py | awk '{print $$NF}'|tr -d '"')
+TEST_MASK ?= tests/*.py
 
 .PHONY: update
 update:
-	poetry update --with test --with docs --with dev
+	poetry update --with test --with docs
 	pre-commit-update-repo.sh
 
 .PHONY: vars
 vars:
 	@echo "PROJECT_NAME: $(PROJECT_NAME)"
-	@echo "PACKAGE_DIR: $(PACKAGE_DIR)"
 	@echo "PROJECT_VERSION: $(PROJECT_VERSION)"
-	# perl -e 'print "MYPYPATH: $$ENV{MYPYPATH}\n"'
+	@echo "WHEEL_VERSION: $(WHEEL_VERSION)"
+	@echo "BUMP_VERSION: $(BUMP_VERSION)"
+	@echo "CONST_VERSION: $(CONST_VERSION)"
+
+.PHONY: version-sanity
+version-sanity:
+ifneq ($(PROJECT_VERSION), $(BUMP_VERSION))
+	$(error Version mismatch PROJECT_VERSION != BUMP_VERSION)
+endif
+ifneq ($(PROJECT_VERSION), $(CONST_VERSION))
+	$(error Version mismatch PROJECT_VERSION != CONST_VERSION)
+endif
+	@echo "Versions are equal $(PROJECT_VERSION), $(BUMP_VERSION), $(CONST_VERSION)"
 
 .PHONY: black
 black:
-	poetry run isort $(PACKAGE_DIR) $(TEST_DIR)
-	poetry run black $(PACKAGE_DIR) $(TEST_DIR)
+	poetry run isort $(PROJECT_DIR) $(TEST_MASK)
+	poetry run black $(PROJECT_DIR) $(TEST_MASK)
 
 .PHONY: mypy
 mypy: black
-	# poetry run mypy $(PACKAGE_DIR) $(TEST_DIR)
-	poetry run mypy $(PACKAGE_DIR)
+	poetry run mypy $(PROJECT_DIR) $(TEST_MASK)
 
 .PHONY: lint
 lint: mypy
-	poetry run flake8 $(PACKAGE_DIR) $(TEST_DIR)
+	poetry run flake8 $(PROJECT_DIR) $(TEST_MASK)
 	poetry run doc8 -q docs
 
 .PHONY: sunit
 sunit:
-	poetry run pytest -s $(TEST_DIR)
+	poetry run pytest -s tests
 
 .PHONY: unit
 unit:
-	poetry run pytest $(TEST_DIR)
+	poetry run pytest tests
 
 .PHONY: package
 package:
-	poetry check
+	poetry check --strict
 	poetry run pip check
+
+.PHONY: publish
+publish: build
+	manage-tag.sh -u v$(PROJECT_VERSION)
+	gh release create v$(PROJECT_VERSION) --generate-notes
+	poetry publish
+
+.PHONY: publish-test
+publish-test: build
+	poetry publish -r test-pypi
 
 .PHONY: safety
 safety:
-	poetry run safety scan --full-report
+	safety scan --full-report
+
+.PHONY: nitpick
+nitpick:
+	poetry run nitpick -p . check
 
 .PHONY: test
-test: safety ghtest
-	poetry run coverage-badge -f -o coverage.svg
+test: nitpick lint package unit
 
-.PHONY: ghtest
-ghtest: lint package unit
-
-# .PHONY: publish
-# publish: clean-build test
-# 	manage-tag.sh -u v$(PROJECT_VERSION)
-# 	poetry publish --build
-
-# .PHONY: publish-test
-# publish-test: clean-build test
-# 	manage-tag.sh -u v$(PROJECT_VERSION)
-# 	poetry publish --build -r test-pypi
-
-.PHONY: tag
-tag:
-	manage-tag.sh -u v$(PROJECT_VERSION)
+.PHONY: citest
+citest: lint package unit
 
 .PHONY: build
-build: clean-build test tag
+build: version-sanity safety clean-build test
 	poetry build
-	sync-wheels.sh dist/$(BUILD_NAME)-$(PROJECT_VERSION)-py3-none-any.whl $(WHEELS)
-
-docs/pages/changelog.rst: CHANGELOG.md
-	m2r2 --overwrite CHANGELOG.md
-	mv -f ./CHANGELOG.rst ./docs/pages/changelog.rst
-
-docs/pages/contributing.rst: CONTRIBUTING.md
-	m2r2 --overwrite CONTRIBUTING.md
-	mv -f ./CONTRIBUTING.rst ./docs/pages/contributing.rst
-
-.PHONY: release
-release: test docs/pages/changelog.rst docs/pages/contributing.rst
-	$(eval OK := $(shell check-release-okay))
-	@if [ "$(OK)" == "YES" ]; then\
-		bump-release;\
-	else\
-		echo $(OK);\
-	fi
+ifdef SYNCH_WHEELS
+	sync-wheels.sh dist/$(PROJECT_NAME)-$(WHEEL_VERSION)-py3-none-any.whl $(WHEELS)
+endif
 
 .PHONY: docs
-docs: docs/pages/changelog.rst docs/pages/contributing.rst
-# TODO: check if doc8 is in virtual environment if yes rebuild virtual environment
-# TODO: dynamically determin vitual environment python version
-# poetry env remove 3.10
-# poetry update --with docs
-#	@cd docs && SPHINXOPTS="-vvW" BUILD="SPHINXBUILD="poetry run sphinx-build" $(MAKE) html
-	$(error "Docs are built automatically by https://readthedocs.org")
+docs:
+	@cd docs && $(MAKE) $@
 
-.PHONY: clean clean-build clean-pyc clean-test clean-docs
-clean: clean-build clean-pyc clean-test clean-docs ## remove all build, test, coverage and Python artifacts
-
-clean-docs: ## remove docs artifacts
-	rm -fr docs/_build docs/node_modules/
-	rm -f docs/.linthtmlrc.yaml docs/package-lock.json docs/package.json
+.PHONY: clean clean-build clean-pyc clean-test
+clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
 clean-build: ## remove build artifacts
 	rm -fr build/
+	rm -fr docs/_build
 	rm -fr dist/
 	rm -fr .eggs/
 	find . -name '*.egg-info' -exec rm -fr {} +

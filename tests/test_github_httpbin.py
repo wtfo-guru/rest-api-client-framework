@@ -14,6 +14,8 @@ pytestmark = pytest.mark.skipif(not github(), reason="We are not on GitHub, Doro
 
 from typing import List
 
+from requests.structures import CaseInsensitiveDict
+
 from api_client.endpoint import Endpoint
 from api_client.request import RestRequest
 
@@ -27,11 +29,15 @@ def request_client_http_bin_github() -> RestRequest:
     return RestRequest("http://127.0.0.1:8000", endpoints, "abc")
 
 
-def test_get_request_gzipped_github(request_client_http_bin_github: RestRequest):
+def test_get_request_gzipped_github(
+    request_client_http_bin_github: RestRequest,
+) -> None:
     """Test get request gzipped github."""
     response = request_client_http_bin_github.call_endpoint(
         "get_gzip",
-        headers={"Accept": "application/json", "Accept-Encoding": "gzip"},
+        headers=CaseInsensitiveDict(
+            {"Accept": "application/json", "Accept-Encoding": "gzip"}
+        ),
     )
     assert response.is_json()
     assert response.data()["gzipped"]
