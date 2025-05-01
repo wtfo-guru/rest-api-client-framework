@@ -1443,14 +1443,14 @@ testing = ["fields", "hunter", "process-tests", "pytest-xdist", "virtualenv"]
 
 [[package]]
 name = "pytest-docker"
-version = "3.2.0"
+version = "3.2.1"
 description = "Simple pytest fixtures for Docker and Docker Compose based tests"
 optional = false
 python-versions = ">=3.8"
 groups = ["test"]
 files = [
-    {file = "pytest_docker-3.2.0-py3-none-any.whl", hash = "sha256:3e266db66887aa3611b2dfd86fb2a3b42f25f3a29d3f14b6e57a831e93a64f60"},
-    {file = "pytest_docker-3.2.0.tar.gz", hash = "sha256:3d6537564e1582cab39e6cc3d6f3d931e92398af62f8313fc826e436f8233e21"},
+    {file = "pytest_docker-3.2.1-py3-none-any.whl", hash = "sha256:ad1be411336959bee768b965c1c4949657e743eec9cf9e7a921fadf83ad97526"},
+    {file = "pytest_docker-3.2.1.tar.gz", hash = "sha256:fc2cd9d1d317ac0854c140738182a60331fbcee8c0ef655b790e8f40a96e226f"},
 ]
 
 [package.dependencies]
@@ -2263,4 +2263,4 @@ resolved_reference = "a50f0e2af9cc957fa43e7cbebaab5a79cf31a4b8"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "c4884dcadbf7c09ce520e87e53caff0799418dd2817010a3c9a341a01c77e72c"
+content-hash = "75ebe3fca0dd5ceb628afefee2d469e3663579c790cb88d3930a3a1dfe0a5945"
