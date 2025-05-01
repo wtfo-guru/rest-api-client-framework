@@ -21,7 +21,7 @@ from api_client.exception import (
 TT = "f7e12af65cd796d6e149a23faa1571b0"
 
 
-def test_endpoint_query_path_parameters():
+def test_endpoint_query_path_parameters() -> None:
     """Test endpoint query path parameters."""
     qps = ["token", "enableBlocking"]
     enable_blocking = Endpoint(
@@ -48,7 +48,7 @@ def test_endpoint_query_path_parameters():
     )
 
 
-def test_missing_method_name_exception():
+def test_missing_method_name_exception() -> None:
     """Test missing method name exception."""
     qps = ["token", "enableBlocking"]
     name = "enable_blocking"
@@ -68,7 +68,7 @@ def test_missing_method_name_exception():
     assert re.search(".*{0}.*".format(name), ex.value.msg)
 
 
-def test_missing_argument_exception():
+def test_missing_argument_exception() -> None:
     """Test missing argument exception."""
     qps = ["token", "enableBlocking"]
     name = "enable_blocking"

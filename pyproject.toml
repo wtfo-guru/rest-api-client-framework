@@ -1,10 +1,20 @@
-[tool.poetry]
+[project]
 name = "rest-api-client-framework"
-version = "0.1.2-dev6"
 description = "Generic Rest Api Client Framework"
-authors = ["Quien Sabe <qs5779@mail.com>"]
 license = "MIT"
+version = "0.1.2-dev7"
+dynamic = ["classifiers"]
 readme = "README.md"
+authors = [{name = "Quien Sabe", email = "qs5779@mail.com"}]
+requires-python = '>=3.10,<4.0'
+dependencies = [
+  'urllib3 (>=2.2.2,<3.0.0)',
+  'requests (>=2.32.3,<3.0.0)',
+  'pydantic[dotenv,mypy] (>=2.8.0,<3.0.0)',
+  'asyncio (>=3.4.3,<4.0.0)'
+]
+
+[tool.poetry]
 packages = [
     { include = "api_client"}
 ]
@@ -22,13 +32,7 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Typing :: Typed",
 ]
-
-[tool.poetry.dependencies]
-python = ">=3.10,<4.0"
-urllib3 = "^2.2.2"
-requests = "^2.32.3"
-pydantic = { version = "^2.8.0", extras = [ "dotenv", "mypy" ] }
-asyncio = "^3.4.3"
+requires-poetry = '>=2.0'
 
 [tool.poetry.group.test]
 optional = true
@@ -46,7 +50,7 @@ pytest-httpserver = "^1.0.0"
 pyfakefs = "^5.8"
 pytest-docker = "^3.1.1"
 doc8 = "^1.1.1"
-safety = "^3.3.1"
+nitpick = "^0.35.0"
 
 [tool.poetry.group.docs]
 optional = true
@@ -55,7 +59,7 @@ optional = true
 sphinx = "^8.0"
 sphinx-autodoc-typehints = "^3.0"
 tomli = "^2.0"
-m2r2 = "^0.3.3.post2"
+sphinx_mdinclude = "^0.6.2"
 
 
 [tool.poetry.group.dev]
@@ -68,7 +72,7 @@ pdoc3 = "^0.11.6"
 loguru = "^0.7.2"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ['poetry-core (>=2.0)']
 build-backend = "poetry.core.masonry.api"
 
 [tool.nitpick]

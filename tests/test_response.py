@@ -17,7 +17,7 @@ from requests import Response
 from api_client.response import RestResponse
 
 
-def assert_file_hash(file_path: str, match: str):
+def assert_file_hash(file_path: str, match: str) -> None:
     """Assert file hash."""
     with open(file_path, "rb") as fp:
         image = fp.read()
@@ -29,7 +29,7 @@ def assert_file_hash(file_path: str, match: str):
     assert md5_hash == match
 
 
-def test_parse_response(response: Response):
+def test_parse_response(response: Response) -> None:
     """Test parse response."""
     resp = RestResponse(response)
     assert resp.status_code == HTTPStatus.OK
@@ -41,7 +41,7 @@ def test_parse_response(response: Response):
     assert resp.data() == {"foo": "bar"}
 
 
-def test_save_json_in_file(response: Response, fs: FakeFilesystem):
+def test_save_json_in_file(response: Response, fs: FakeFilesystem) -> None:
     """Test save json in file."""
     fs.create_dir("/testing")
     resp = RestResponse(response)
@@ -50,7 +50,7 @@ def test_save_json_in_file(response: Response, fs: FakeFilesystem):
     assert_file_hash("/testing/test.json", "94232c5b8fc9272f6f73a1e36eb68fcf")
 
 
-def test_image_as_response(response_image: Response, fs: FakeFilesystem):
+def test_image_as_response(response_image: Response, fs: FakeFilesystem) -> None:
     """Test image as response."""
     fs.create_dir("/testing")
     resp = RestResponse(response_image)
