@@ -10,3 +10,4 @@ dist/
 *.egg-info
 **__pychache__**
 __pycache__
+.cache
