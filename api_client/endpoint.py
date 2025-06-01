@@ -56,7 +56,7 @@ class HTTPMethod(Enum):
     PATCH = "patch"
 
 
-class Endpoint(BaseModel):
+class Endpoint(BaseModel):  # type: ignore[explicit-any]
     """
     The Endpoint object contains information to assemble a url to an api endpoint.
 

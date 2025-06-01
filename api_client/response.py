@@ -46,9 +46,9 @@ class RestResponse(io.IOBase):
             self._headers[str(kk).lower()] = str(vv)
 
         try:
-            self._data = json.loads(resp.content.decode("utf-8"))  # noqa: WPS110
+            self._data = json.loads(resp.content.decode("utf-8"))
         except ValueError:
-            self._data = resp.content  # noqa: WPS110
+            self._data = resp.content
 
     @property
     def status_code(self) -> int:
@@ -89,7 +89,7 @@ class RestResponse(io.IOBase):
 
         return self._headers[name]
 
-    def data(self) -> Any:  # noqa: WPS110
+    def data(self) -> Any:  # type: ignore[explicit-any]
         """
         Return data downloaded from api.
 

@@ -128,7 +128,7 @@ class RestRequest:  # noqa: WPS214
             raise KeyError("Endpoint name {0} already exists.".format(endpoint.name))
         self._endpoints[endpoint.name] = endpoint
 
-    def _send_request(
+    def _send_request(  # type: ignore[explicit-any]
         self,
         url: str,
         method: HTTPMethod,
@@ -210,7 +210,7 @@ class RestRequest:  # noqa: WPS214
 
         return response
 
-    # def info(self) -> RestResponse:  # noqa: WPS110
+    # def info(self) -> RestResponse:
     #     """Get info about account.
 
     #     :return: Info about free requests etc.
