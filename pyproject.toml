@@ -39,7 +39,7 @@ optional = true
 
 [tool.poetry.group.test.dependencies]
 mypy = "^1.11"
-wemake-python-styleguide = "^1.1"
+wemake-python-styleguide = "^1.4"
 flake8-pytest-style = ">=1.6,<3.0"
 black = "^25.0"
 isort = "^6.0"
