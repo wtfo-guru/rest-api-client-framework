@@ -2,7 +2,7 @@
 name = "rest-api-client-framework"
 description = "Generic Rest Api Client Framework"
 license = "MIT"
-version = "0.1.2-dev7"
+version = "0.1.2-dev8"
 dynamic = ["classifiers"]
 readme = "README.md"
 authors = [{name = "Quien Sabe", email = "qs5779@mail.com"}]
