@@ -1,8 +1,7 @@
 [project]
 name = "rest-api-client-framework"
 description = "Generic Rest Api Client Framework"
-license = "MIT"
-version = "0.1.2-dev8"
+version = "0.1.2-dev9"
 dynamic = ["classifiers"]
 readme = "README.md"
 authors = [{name = "Quien Sabe", email = "qs5779@mail.com"}]
@@ -14,6 +13,9 @@ dependencies = [
   'asyncio (>=3.4.3,<4.0.0)'
 ]
 
+[project.License]
+license = "License :: OSI Approved :: MIT License"
+
 [tool.poetry]
 packages = [
     { include = "api_client"}
@@ -24,7 +26,6 @@ classifiers = [
   "Intended Audience :: End Users/Desktop",
   "Intended Audience :: System Administrators",
   "Operating System :: POSIX :: Linux",
-  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -43,7 +44,7 @@ wemake-python-styleguide = "^1.1"
 flake8-pytest-style = ">=1.6,<3.0"
 black = "^25.0"
 isort = "^6.0"
-pytest-cov = "^6.0.0"
+pytest-cov = "^7.0.0"
 coverage-badge = "^1.1.1"
 types-requests = "^2.32.0.20250328"
 pytest-httpserver = "^1.0.0"
