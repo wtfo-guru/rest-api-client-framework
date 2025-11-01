@@ -1,7 +1,7 @@
 [project]
 name = "rest-api-client-framework"
 description = "Generic Rest Api Client Framework"
-version = "0.1.2-dev9"
+version = "0.1.2-dev10"
 dynamic = ["classifiers"]
 readme = "README.md"
 authors = [{name = "Quien Sabe", email = "qs5779@mail.com"}]
