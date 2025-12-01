@@ -1,20 +1,18 @@
 [project]
 name = "rest-api-client-framework"
 description = "Generic Rest Api Client Framework"
-version = "0.1.2-dev9"
+version = "0.1.2-dev10"
 dynamic = ["classifiers"]
 readme = "README.md"
+license = "MIT"
 authors = [{name = "Quien Sabe", email = "qs5779@mail.com"}]
-requires-python = '>=3.10,<4.0'
+requires-python = '>=3.11,<4.0'
 dependencies = [
   'urllib3 (>=2.2.2,<3.0.0)',
   'requests (>=2.32.3,<3.0.0)',
   'pydantic[dotenv,mypy] (>=2.8.0,<3.0.0)',
   'asyncio (>=3.4.3,<4.0.0)'
 ]
-
-[project.License]
-license = "License :: OSI Approved :: MIT License"
 
 [tool.poetry]
 packages = [
@@ -27,10 +25,10 @@ classifiers = [
   "Intended Audience :: System Administrators",
   "Operating System :: POSIX :: Linux",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Typing :: Typed",
 ]
 requires-poetry = '>=2.0'
@@ -43,7 +41,7 @@ mypy = "^1.11"
 wemake-python-styleguide = "^1.1"
 flake8-pytest-style = ">=1.6,<3.0"
 black = "^25.0"
-isort = "^6.0"
+isort = "^7.0"
 pytest-cov = "^7.0.0"
 coverage-badge = "^1.1.1"
 types-requests = "^2.32.0.20250328"

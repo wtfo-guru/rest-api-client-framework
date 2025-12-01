@@ -6,18 +6,16 @@ Functions:
     test_get_request_gzipped_github
 """
 
-import pytest
-
-from tests.conftest import github
-
-pytestmark = pytest.mark.skipif(not github(), reason="We are not on GitHub, Dorothy.")
-
 from typing import List
 
+import pytest
 from requests.structures import CaseInsensitiveDict
 
 from api_client.endpoint import Endpoint
 from api_client.request import RestRequest
+from tests.conftest import github
+
+pytestmark = pytest.mark.skipif(not github(), reason="We are not on GitHub, Dorothy.")
 
 
 @pytest.fixture(scope="module")
