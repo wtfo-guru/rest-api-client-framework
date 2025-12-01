@@ -8,20 +8,18 @@ Functions:
     test_get_request_gzipped_local
 """
 
-import pytest
-
-from tests.conftest import github
-
-pytestmark = pytest.mark.skipif(github(), reason="We are not running locally, Dorothy.")
-
 from typing import List
 
+import pytest
 import requests
 from requests.exceptions import ConnectionError
 from requests.structures import CaseInsensitiveDict
 
 from api_client.endpoint import Endpoint
 from api_client.request import RestRequest
+from tests.conftest import github
+
+pytestmark = pytest.mark.skipif(github(), reason="We are not running locally, Dorothy.")
 
 
 def is_responsive(url: str) -> bool:
