@@ -49,6 +49,7 @@ pytest-httpserver = "^1.0.0"
 pyfakefs = "^5.8"
 pytest-docker = "^3.1.1"
 doc8 = "^2.0"
+ruff = "^0.14.7"
 
 [tool.poetry.group.docs]
 optional = true
