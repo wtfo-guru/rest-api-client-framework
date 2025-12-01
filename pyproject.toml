@@ -66,7 +66,7 @@ sphinx_mdinclude = "^0.6.2"
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-click = "^8.1.7"
+click = "^8.3.1"
 yaml-settings-pydantic = {git = "https://github.com/acederberg/pydantic-settings-yaml.git", rev = "2.3.1"}
 pdoc3 = "^0.11.6"
 loguru = "^0.7.2"
