@@ -1,7 +1,7 @@
 [project]
 name = "rest-api-client-framework"
 description = "Generic Rest Api Client Framework"
-version = "0.1.2-dev10"
+version = "0.1.2-dev11"
 dynamic = ["classifiers"]
 readme = "README.md"
 license = "MIT"
