@@ -1180,14 +1180,14 @@ yaml = ["pyyaml (>=6.0.1)"]
 
 [[package]]
 name = "pyfakefs"
-version = "5.10.2"
+version = "6.0.0"
 description = "Implements a fake file system that mocks the Python file system modules."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.10"
 groups = ["test"]
 files = [
-    {file = "pyfakefs-5.10.2-py3-none-any.whl", hash = "sha256:6ff0e84653a71efc6a73f9ee839c3141e3a7cdf4e1fb97666f82ac5b24308d64"},
-    {file = "pyfakefs-5.10.2.tar.gz", hash = "sha256:8ae0e5421e08de4e433853a4609a06a1835f4bc2a3ce13b54f36713a897474ba"},
+    {file = "pyfakefs-6.0.0-py3-none-any.whl", hash = "sha256:44ef5ab0294e7e623b8e56b4f2d8c9468b737d6e8641053063c43033d2c8c180"},
+    {file = "pyfakefs-6.0.0.tar.gz", hash = "sha256:059fd0b2174bfeed499ecb0a59bccff557f267cc6d885afc0e5b76e78b6d50da"},
 ]
 
 [[package]]
@@ -1889,4 +1889,4 @@ resolved_reference = "a50f0e2af9cc957fa43e7cbebaab5a79cf31a4b8"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4.0"
-content-hash = "3f1cc4d9fce30c7105e2591c5886bb64ebb71703aef5fbde91bec7c3e452362c"
+content-hash = "7833de2f70e20c7e690a8c41883c5ed805250de920b678f9cc4bc68da0f1a785"
