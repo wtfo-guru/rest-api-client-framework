@@ -1,7 +1,7 @@
 [project]
 name = "rest-api-client-framework"
 description = "Generic Rest Api Client Framework"
-version = "0.1.2-dev11"
+version = "0.1.2-dev12"
 dynamic = ["classifiers"]
 readme = "README.md"
 license = "MIT"
@@ -40,7 +40,7 @@ optional = true
 mypy = "^1.11"
 wemake-python-styleguide = "^1.1"
 flake8-pytest-style = ">=1.6,<3.0"
-black = "^25.0"
+black = "^26.0"
 isort = "^7.0"
 pytest-cov = "^7.0.0"
 coverage-badge = "^1.1.1"
