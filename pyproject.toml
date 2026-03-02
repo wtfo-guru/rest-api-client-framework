@@ -33,23 +33,27 @@ classifiers = [
 ]
 requires-poetry = '>=2.0'
 
-[tool.poetry.group.test]
+[tool.poetry.group.dev]
 optional = true
 
-[tool.poetry.group.test.dependencies]
-mypy = "^1.11"
-wemake-python-styleguide = "^1.1"
-flake8-pytest-style = ">=1.6,<3.0"
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.17.0"
+wemake-python-styleguide = "^1.0"
+flake8-pytest-style = "^2.0"
 black = "^26.0"
 isort = "^8.0"
-pytest-cov = "^7.0.0"
+pytest-cov = "^7.0"
 coverage-badge = "^1.1.1"
 types-requests = "^2.32.0.20250328"
 pytest-httpserver = "^1.1.5"
 pyfakefs = "^6.1"
-pytest-docker = "^3.1.1"
+# pytest-docker = "^3.1.1"
 doc8 = "^2.0"
-ruff = "^0.15.2"
+ruff = "^0.15.0"
+click = "^8.1.7"
+yaml-settings-pydantic = {git = "https://github.com/acederberg/pydantic-settings-yaml.git", rev = "2.3.1"}
+pdoc3 = "^0.11.6"
+loguru = "^0.7.2"
 
 [tool.poetry.group.docs]
 optional = true
@@ -59,16 +63,6 @@ sphinx = "^9.0"
 sphinx-autodoc-typehints = "^3.0"
 tomli = "^2.0"
 sphinx_mdinclude = "^0.6.2"
-
-
-[tool.poetry.group.dev]
-optional = true
-
-[tool.poetry.group.dev.dependencies]
-click = "^8.1.7"
-yaml-settings-pydantic = {git = "https://github.com/acederberg/pydantic-settings-yaml.git", rev = "2.3.1"}
-pdoc3 = "^0.11.6"
-loguru = "^0.7.2"
 
 [build-system]
 requires = ['poetry-core (>=2.0)']
