@@ -6,6 +6,7 @@ Functions:
     test_get_request_gzipped_github
 """
 
+import socket
 from typing import List
 
 import pytest
@@ -15,7 +16,7 @@ from api_client.endpoint import Endpoint
 from api_client.request import RestRequest
 from tests.conftest import github
 
-pytestmark = pytest.mark.skipif(not github(), reason="We are not on GitHub, Dorothy.")
+# pytestmark = pytest.mark.skipif(not github(), reason="We are not on GitHub, Dorothy.")
 
 
 @pytest.fixture(scope="module")
@@ -23,8 +24,12 @@ def request_client_http_bin_github() -> RestRequest:
     """Fixture request client http bin github."""
     endpoints: List[Endpoint] = []
     endpoints.append(Endpoint(name="get_gzip", path="/gzip"))
-    # return RestRequest("http://httpbin:8000", endpoints, "abc")
-    return RestRequest("http://127.0.0.1:8000", endpoints, "abc")
+    if github():
+        httpbin_addr = "http://127.0.0.1:8000"
+    else:
+        ip = socket.gethostbyname("devops-vm.metaorg.com")
+        httpbin_addr = "http://{0}:8080".format(ip)
+    return RestRequest(httpbin_addr, endpoints, "abc")
 
 
 def test_get_request_gzipped_github(
